@@ -1,0 +1,332 @@
+<!--ogr2ogr -f GeoJSON -t_srs WGS84 kommuner2M.json DAGI2M/KOMMUNE.shp -->
+<!-- topojson --id-property=KOMKODE -p KOMNAVN -p REGIONNAVN -o dk.json kommuner2M.json -->
+
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<style>
+
+#main{
+  width: 900px ;
+  margin-left: auto ;
+  margin-right: auto ;
+}
+
+.subtitle {
+  font-weight: bold;
+  font-style: italic;
+}
+
+.kommune {
+  stroke: grey;
+  stroke-linejoin: round;	
+}
+.active{
+  stroke:orange;
+}
+
+.legend-block {
+  stroke: black;
+}
+
+</style>
+<script src="colorbrewer.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/topojson.v0.min.js"></script>
+<script type="text/javascript">
+    d3.selection.prototype.moveToFront = function() {
+      return this.each(function(){
+        this.parentNode.appendChild(this);
+      });
+    };
+        // Setting width and height of plot area
+    var width = 960,
+        height = 650;
+    //locator - string where to put a chart in
+    // range - array with min and max range of plotting variable
+    // buckets - number of buckets to break our plotting continuous variable
+    function make_a_chart(locator, range, buckets,plot_variable,color_palette,legend_format,legend_text) {
+      var centered; // used later for setting a centered element
+      var buckets = 8 // number of buckets that we divide communes by share of foreigners
+      // calculating bucket breaks
+      var legend_breaks = d3.scale.quantile()
+          .domain(range)
+          .range(d3.range(buckets))
+          .quantiles();
+      legend_breaks.splice(0,0,0)
+
+      var projection = d3.geo.albers()
+          .center([16, 56.2])
+          .rotate([4.4, 0])
+          .parallels([54, 57])
+          .scale(11000)
+          .translate([width / 2, height / 2]);
+
+      var path = d3.geo.path()
+          .projection(projection);
+
+      var rateById = d3.map();
+
+      var svg = d3.select(locator).append("svg")
+          .attr("id","svg-" + plot_variable)
+          .attr("width", width)
+          .attr("height", height);
+
+      var legend = svg.append("g")
+          .attr("id", "legend-" + plot_variable);
+
+      var colorScale = d3.scale.quantize()
+          .domain(range)
+          .range(colorbrewer[color_palette][buckets]);
+
+      queue()
+          .defer(d3.json, "dk.json")
+          .defer(d3.csv, "foreigners-by-kommune.csv", function(d) { rateById.set(d.muni, + d[plot_variable]); })
+          .await(ready);
+
+      function ready(error, dk) {
+        svg.selectAll(".kommune")
+          .data(topojson.object(dk, dk.objects.kommuner2M).geometries)
+        .enter().append("path")
+          .attr("class",function(d){ 
+            return "kommune " + plot_variable + " " + d.properties.KOMNAVN})
+          .attr("fill", function(d) {return colorScale(rateById.get(d.properties.KOMNAVN))})
+          .attr("d", path)
+          .on("click", click);
+        // Adding legend
+
+        legend.selectAll("rect")
+                 .data(d3.range(buckets))
+             .enter().append("rect")
+                .attr("width", 40)
+                .attr("height", 20)
+                .attr("y", function(d, i){ return 45 + i*21;})
+                .attr("x", 10)
+                .attr("fill", function(d){return colorScale(legend_breaks[d]+0.01)})
+                .attr("class","legend-block");
+
+        legend.selectAll("text")
+                .data(legend_breaks)
+            .enter().append("text")
+                .attr("text-anchor", "start") // text-align
+                .attr("x", 50)
+                .attr("y", function(d, i){return 35 + i*21})
+                .attr("dx", 8) // padding-right
+                .attr("dy", 12 + 4) // vertical-align: used font size (copied from css. must be a better way)
+                .attr("class", "legend")
+                .text(function (d){return legend_format(d)} );
+         legend.append("text")
+            .text(legend_text)
+            .attr("x", "5")
+            .attr("y", "20")
+         };
+
+      function click(d) {
+        var x, y, k;
+        var komnavn = d.properties.KOMNAVN;
+        z = svg.selectAll("." + komnavn);
+        console.log(svg);
+        if (d && centered !== d) {
+          var centroid = path.centroid(d);
+          x = centroid[0];
+          y = centroid[1];
+          k = 4;
+          centered = d;
+        } else {
+          x = width / 2;
+          y = height / 2;
+          k = 1;
+          centered = null;
+        }
+        svg.selectAll(".kommune").classed("active", false)
+        z.classed("active", function(d) { return centered != null});
+        if(centered != null) {
+          svg.select(".caption").remove();
+          cap = svg.append("text")
+             .attr("class", "caption")
+             .text(d.properties.KOMNAVN + ", " + legend_format(rateById.get(d.properties.KOMNAVN)))
+             .attr("x", "700")
+             .attr("y", "20");
+
+        } else {
+          svg.select(".caption").remove();
+        }
+        g = svg.selectAll("." + plot_variable)
+        g.transition()
+            .duration(1000)
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+        z.moveToFront();
+        legend.moveToFront();
+      }
+    }
+</script>
+</head>
+<body>
+  <div id='main'>
+    <h1>Foreings in Denmark</h1>
+    <p class='subtitle'>A visual exploration</p>
+<p>Danish site of <a href="http://www.statistikbanken.dk/statbank5a/default.asp?w=2560">bureau of statistics</a> contains a nice dataset about foreign-born residents in Denmark. I took the latest dataset of foreign-born residenst of Denmark by municipality. Dataset is from the first quarter of 2013.</p>
+<p>There are a bit less than 375 thousand foreign-born people living in Denmark, 6.7% of its total population. People from 192 countries live here, with no country having a clear majority. Most of foreigners in Denmark come from Turkey and Poland (around 27000 or .5% of total population), closely followed by Germans and Britons (.4% and .27% respectively). Almost half of all the foreigners in Denmark come from following 10 countries.</p>
+
+<table><thead>
+<tr>
+<th>country</th>
+<th>population</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Turkey</td>
+<td>28.755</td>
+</tr>
+<tr>
+<td>Poland</td>
+<td>26.759</td>
+</tr>
+<tr>
+<td>Germany</td>
+<td>22.393</td>
+</tr>
+<tr>
+<td>United Kingdom</td>
+<td>15.398</td>
+</tr>
+<tr>
+<td>Norway</td>
+<td>15.329</td>
+</tr>
+<tr>
+<td>Iraq</td>
+<td>15.160</td>
+</tr>
+<tr>
+<td>Sweden</td>
+<td>13.358</td>
+</tr>
+<tr>
+<td>Romania</td>
+<td>12.374</td>
+</tr>
+<tr>
+<td>Bosnia-Herzegovina</td>
+<td>11.013</td>
+</tr>
+<tr>
+<td>Afghanistan</td>
+<td>9.779</td>
+</tr>
+</tbody></table>
+
+<p>Different communes have different share of foreigners. Percentage varies from 17% in Ishøj, a suburb of Copenhagen, to less than 3% in a small kommune of Sorø, in south-east of Sjælland.</p>
+
+  <div id="share">
+    <h3>Share of foreign-born residents in Danish municipalities</h3>
+    <script>
+     make_a_chart("div#share", [0,0.15],9,"share","BuGn",d3.format(".2%"),"Share of foreigners.");
+    </script>
+  </div>
+ 
+<p>The most municipalities with significant share of foreigners are in capital region. All three municipalities in top bucket by share of foreign-born residents belong to it.</p>
+
+<p>Let's see the absolute numbers of foreign-born residents in Denmark.
+
+  <div  id="total">
+    <h3>Total number of foreigners in Danish municipalities</h3>
+
+    <script>
+      make_a_chart("div#total", [0,25000],9,"total","BuPu", Math.ceil,"Number of foreigners.");
+    </script>
+  </div>
+<p>Now here we have a different story. Majority of the foreigners in Denmark live in Copenhagen and Aarhus. This is not surprising, however, given that these municipalities are the most populous. In fact, correlation between population and number of foreigners in a municipality is almost perfect: 95%. </p>
+
+<p>At last, let's look at the distribution of forein-born residents by country of citizenship. I selected 6 countries, that . You can select a country from the dropdown and get the visuals below. </p>
+  <div id='country'>
+    <h3>Total number of foreigners from selected countries.</h3>
+    <p>Country: 
+      <select id="countries" onchange="$('#country svg').remove();make_a_chart('div#country', [0,2000],9,this.options[this.selectedIndex].value,'RdPu',Math.ceil,this.options[this.selectedIndex].text)">
+        <option value="Turkey" selected>Turkey</option>
+        <option value="Poland">Poland</option>
+        <option value="Germany">Germany</option>
+        <option value="Nordics">Nordic Countries</option>
+        <option value="UK">United Kingdom</option>
+        <option value="Iraq">Iraq</option>
+      </select>
+    </p>
+    <script>
+      make_a_chart("div#country", [0,2000],9,"Turkey","RdPu",Math.ceil,"Turkey.");
+    </script>
+  </div>
+
+<p>The patterns for selected countries repeat the general pattern of foreign-born population: overwhelming majority lives in Copenhagen and Aalborg, the rest is scattered accross other municipalities. Interesting exception are Germans: significant portion of them live in municipalities close to German border. Britons, on the other hand, live almost exclusively in Copenhagen. All but one other municipalities have less than 500 British residents.</p>
+
+<p>The last interesting observation is a correlation of number of foreiners between countries. Turns out that Turks and Germans usually don&#39;t live in the same municipalities, while Poles and Iraqis live in almost the same municipalities.</p>
+
+<table><thead>
+<tr>
+<th></th>
+<th>Germany</th>
+<th>Turkey</th>
+<th>Poland</th>
+<th>Iraq</th>
+<th>UK</th>
+<th>Nordics</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Germany</td>
+<td>1.000</td>
+<td>0.629</td>
+<td>0.810</td>
+<td>0.789</td>
+<td>0.836</td>
+<td>0.853</td>
+</tr>
+<tr>
+<td>Turkey</td>
+<td>&mdash;</td>
+<td>1.000</td>
+<td>0.763</td>
+<td>0.785</td>
+<td>0.768</td>
+<td>0.760</td>
+</tr>
+<tr>
+<td>Poland</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>1.000</td>
+<td>0.914</td>
+<td>0.871</td>
+<td>0.891</td>
+</tr>
+<tr>
+<td>Iraq</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>1.000</td>
+<td>0.860</td>
+<td>0.890</td>
+</tr>
+<tr>
+<td>UK</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>1.000</td>
+<td>0.990</td>
+</tr>
+<tr>
+<td>Nordics</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>1.000</td>
+</tr>
+</tbody></table>
+</div>
+</body>
