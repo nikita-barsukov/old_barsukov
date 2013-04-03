@@ -4,7 +4,24 @@
 <!DOCTYPE html>
 <head>
 <meta charset="utf-8">
+<link href='http://fonts.googleapis.com/css?family=Quattrocento' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
 <style>
+h1, h2, h3 {
+  font-family: 'Quattrocento', serif;
+}
+body {
+  font-family: 'Droid Sans', sans-serif;
+}
+table{
+  border-collapse:collapse;
+}
+th {
+  border-bottom: 1px solid black;
+}
+caption {
+  margin-bottom: 10px;
+}
 
 #main{
   width: 900px ;
@@ -165,15 +182,17 @@
 </head>
 <body>
   <div id='main'>
-    <h1>Foreings in Denmark</h1>
+    <h1>Foreigners in Denmark</h1>
     <p class='subtitle'>A visual exploration</p>
-<p>Danish site of <a href="http://www.statistikbanken.dk/statbank5a/default.asp?w=2560">bureau of statistics</a> contains a nice dataset about foreign-born residents in Denmark. I took the latest dataset of foreign-born residenst of Denmark by municipality. Dataset is from the first quarter of 2013.</p>
+<p>Danish <a href="http://www.statistikbanken.dk/statbank5a/default.asp?w=2560">bureau of statistics</a> has a nice dataset about foreign-born residents in Denmark. I took the latest dataset of foreign-born residents of Denmark by municipality. Dataset is from the first quarter of 2013.</p>
 <p>There are a bit less than 375 thousand foreign-born people living in Denmark, 6.7% of its total population. People from 192 countries live here, with no country having a clear majority. Most of foreigners in Denmark come from Turkey and Poland (around 27000 or .5% of total population), closely followed by Germans and Britons (.4% and .27% respectively). Almost half of all the foreigners in Denmark come from following 10 countries.</p>
 
-<table><thead>
+<table>
+  <caption>Top 10 countries by number of residents in Denmark</caption>
+<thead>
 <tr>
-<th>country</th>
-<th>population</th>
+<th>Country</th>
+<th>Residents</th>
 </tr>
 </thead><tbody>
 <tr>
@@ -218,7 +237,7 @@
 </tr>
 </tbody></table>
 
-<p>Different communes have different share of foreigners. Percentage varies from 17% in Ishøj, a suburb of Copenhagen, to less than 3% in a small kommune of Sorø, in south-east of Sjælland.</p>
+<p>Different communes have different share of foreigners. Percentage varies from 17% in Ishøj, a suburb of Copenhagen, to less than 3% in a small municipality of Sorø, in south-east of Sjælland.</p>
 
   <div id="share">
     <h3>Share of foreign-born residents in Danish municipalities</h3>
@@ -229,7 +248,7 @@
  
 <p>The most municipalities with significant share of foreigners are in capital region. All three municipalities in top bucket by share of foreign-born residents belong to it.</p>
 
-<p>Let's see the absolute numbers of foreign-born residents in Denmark.
+<p>Let's see the absolute numbers of foreign-born residents in Denmark.</p>
 
   <div  id="total">
     <h3>Total number of foreigners in Danish municipalities</h3>
@@ -240,12 +259,12 @@
   </div>
 <p>Now here we have a different story. Majority of the foreigners in Denmark live in Copenhagen and Aarhus. This is not surprising, however, given that these municipalities are the most populous. In fact, correlation between population and number of foreigners in a municipality is almost perfect: 95%. </p>
 
-<p>At last, let's look at the distribution of forein-born residents by country of citizenship. I selected 6 countries, that . You can select a country from the dropdown and get the visuals below. </p>
+<p>At last, let's look at the distribution of foreign-born residents by country of citizenship. I selected 6 countries, that . You can select a country from the drop-down and get the visuals below. </p>
   <div id='country'>
     <h3>Total number of foreigners from selected countries.</h3>
     <p>Country: 
       <select id="countries" onchange="$('#country svg').remove();make_a_chart('div#country', [0,2000],9,this.options[this.selectedIndex].value,'RdPu',Math.ceil,this.options[this.selectedIndex].text)">
-        <option value="Turkey" selected>Turkey</option>
+        <option value="Turkey">Turkey</option>
         <option value="Poland">Poland</option>
         <option value="Germany">Germany</option>
         <option value="Nordics">Nordic Countries</option>
@@ -254,27 +273,27 @@
       </select>
     </p>
     <script>
-      make_a_chart("div#country", [0,2000],9,"Turkey","RdPu",Math.ceil,"Turkey.");
+      make_a_chart("div#country", [0,2000],9,"Turkey","RdPu",Math.ceil,"Turkey");
     </script>
   </div>
 
 <p>The patterns for selected countries repeat the general pattern of foreign-born population: overwhelming majority lives in Copenhagen and Aalborg, the rest is scattered accross other municipalities. Interesting exception are Germans: significant portion of them live in municipalities close to German border. Britons, on the other hand, live almost exclusively in Copenhagen. All but one other municipalities have less than 500 British residents.</p>
 
-<p>The last interesting observation is a correlation of number of foreiners between countries. Turns out that Turks and Germans usually don&#39;t live in the same municipalities, while Poles and Iraqis live in almost the same municipalities.</p>
+<p>The last interesting observation is a correlation of number of foreigners between countries. Turns out that Turks and Germans usually don&#39;t live in the same municipalities, while Poles and Iraqis live in almost the same municipalities.</p>
 
-<table><thead>
+<table>
+  <caption>Correlation of number of residents by municipality <br/>between selected countries </caption>
 <tr>
-<th></th>
-<th>Germany</th>
-<th>Turkey</th>
-<th>Poland</th>
-<th>Iraq</th>
-<th>UK</th>
-<th>Nordics</th>
+<td></td>
+<td style='font-weight:bold'>Germany</td>
+<td style='font-weight:bold'>Turkey</td>
+<td style='font-weight:bold'>Poland</td>
+<td style='font-weight:bold'>Iraq</td>
+<td style='font-weight:bold'>UK</td>
+<td style='font-weight:bold'>Nordics</td>
 </tr>
-</thead><tbody>
 <tr>
-<td>Germany</td>
+<td style='font-weight:bold'>Germany</td>
 <td>1.000</td>
 <td>0.629</td>
 <td>0.810</td>
@@ -283,7 +302,7 @@
 <td>0.853</td>
 </tr>
 <tr>
-<td>Turkey</td>
+<td style='font-weight:bold'>Turkey</td>
 <td>&mdash;</td>
 <td>1.000</td>
 <td>0.763</td>
@@ -292,7 +311,7 @@
 <td>0.760</td>
 </tr>
 <tr>
-<td>Poland</td>
+<td style='font-weight:bold'>Poland</td>
 <td>&mdash;</td>
 <td>&mdash;</td>
 <td>1.000</td>
@@ -301,7 +320,7 @@
 <td>0.891</td>
 </tr>
 <tr>
-<td>Iraq</td>
+<td style='font-weight:bold'>Iraq</td>
 <td>&mdash;</td>
 <td>&mdash;</td>
 <td>&mdash;</td>
@@ -310,7 +329,7 @@
 <td>0.890</td>
 </tr>
 <tr>
-<td>UK</td>
+<td style='font-weight:bold'>UK</td>
 <td>&mdash;</td>
 <td>&mdash;</td>
 <td>&mdash;</td>
@@ -319,7 +338,7 @@
 <td>0.990</td>
 </tr>
 <tr>
-<td>Nordics</td>
+<td style='font-weight:bold'>Nordics</td>
 <td>&mdash;</td>
 <td>&mdash;</td>
 <td>&mdash;</td>
@@ -327,6 +346,6 @@
 <td>&mdash;</td>
 <td>1.000</td>
 </tr>
-</tbody></table>
+</table>
 </div>
 </body>
