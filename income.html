@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<link href='http://fonts.googleapis.com/css?family=Quattrocento' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+<style>
+h1, h2, h3 {
+  font-family: 'Quattrocento', serif;
+}
+body {
+  font-family: 'Droid Sans', sans-serif;
+}
+table{
+  border-collapse:collapse;
+}
+th {
+  border-bottom: 1px solid black;
+}
+caption {
+  margin-bottom: 10px;
+}
+
+#main{
+  width: 900px ;
+  margin-left: auto ;
+  margin-right: auto ;
+}
+.year-label {
+
+}
+
+.kommune {
+  stroke: grey;
+  stroke-linejoin: round;   
+}
+.active{
+  stroke:orange;
+}
+
+.legend-block {
+  stroke: black;
+}
+
+</style>
+<script src="colorbrewer.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/topojson.v0.min.js"></script>
+<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+<script type="text/javascript">
+    d3.selection.prototype.moveToFront = function() {
+      return this.each(function(){
+        this.parentNode.appendChild(this);
+      });
+    };
+        // Setting width and height of plot area
+    var width = 960,
+        height = 650;
+    //locator - string where to put a chart in
+    // range - array with min and max range of plotting variable
+    // buckets - number of buckets to break our plotting continuous variable
+    function make_a_chart(locator, data_file, range, buckets,plot_variable,color_palette,legend_format,legend_text) {
+      var centered; // used later for setting a centered element
+      var buckets = 8 // number of buckets that we divide communes by share of foreigners
+      // calculating bucket breaks
+      var legend_breaks = d3.scale.quantile()
+          .domain(range)
+          .range(d3.range(buckets))
+          .quantiles();
+
+      var projection = d3.geo.albers()
+          .center([16, 56.2])
+          .rotate([4.4, 0])
+          .parallels([54, 57])
+          .scale(11000)
+          .translate([width / 2, height / 2]);
+
+      var path = d3.geo.path()
+          .projection(projection);
+
+      var rateById = d3.map();
+
+      var svg = d3.select(locator).append("svg")
+          .attr("id","svg-" + plot_variable)
+          .attr("width", width)
+          .attr("height", height);
+
+      var legend = svg.append("g")
+          .attr("id", "legend-" + plot_variable);
+
+      var colorScale = d3.scale.quantize()
+          .domain(range)
+          .range(colorbrewer[color_palette][buckets]);
+
+      queue()
+          .defer(d3.json, "dk.json")
+          .defer(d3.csv, data_file, function(d) { rateById.set(d.muni, + d[plot_variable]); })
+          .await(ready);
+
+      function ready(error, dk) {
+        svg.selectAll(".kommune")
+          .data(topojson.object(dk, dk.objects.kommuner2M).geometries)
+        .enter().append("path")
+          .attr("class",function(d){ 
+            return "kommune " + plot_variable + " " + d.properties.KOMNAVN})
+          .attr("fill", function(d) {return colorScale(rateById.get(d.properties.KOMNAVN))})
+          .attr("d", path)
+          .on("click", click);
+        // Adding legend
+
+        legend.selectAll("rect")
+                 .data(d3.range(buckets))
+             .enter().append("rect")
+                .attr("width", 40)
+                .attr("height", 20)
+                .attr("y", function(d, i){ return 45 + i*21;})
+                .attr("x", 10)
+                .attr("fill", function(d,i){return colorbrewer[color_palette][buckets][i]})
+                .attr("class","legend-block");
+
+        legend.selectAll("text")
+                .data(legend_breaks)
+            .enter().append("text")
+                .attr("text-anchor", "start") // text-align
+                .attr("x", 50)
+                .attr("y", function(d, i){return 55 + i*21})
+                .attr("dx", 8) // padding-right
+                .attr("dy", 12 + 4) // vertical-align: used font size (copied from css. must be a better way)
+                .attr("class", "legend")
+                .text(function (d){return legend_format(d)} );
+         legend.append("text")
+            .text(legend_text)
+            .attr("x", "5")
+            .attr("y", "20")
+         };
+
+      function click(d) {
+        var x, y, k;
+        var komnavn = d.properties.KOMNAVN;
+        z = svg.selectAll("." + komnavn);
+        if (d && centered !== d) {
+          var centroid = path.centroid(d);
+          x = centroid[0];
+          y = centroid[1];
+          k = 4;
+          centered = d;
+        } else {
+          x = width / 2;
+          y = height / 2;
+          k = 1;
+          centered = null;
+        }
+        svg.selectAll(".kommune").classed("active", false)
+        z.classed("active", function(d) { return centered != null});
+        if(centered != null) {
+          svg.select(".caption").remove();
+          cap = svg.append("text")
+             .attr("class", "caption")
+             .text(d.properties.KOMNAVN + ", " + legend_format(rateById.get(d.properties.KOMNAVN)))
+             .attr("x", "700")
+             .attr("y", "20");
+
+        } else {
+          svg.select(".caption").remove();
+        }
+        g = svg.selectAll("." + plot_variable)
+        g.transition()
+            .duration(1000)
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+        z.moveToFront();
+        legend.moveToFront();
+      }
+    }
+</script>
+</head>
+<body>
+	<div id='main'>
+		<h1>Taxes and income in Danish households</h1>
+
+	<p>As a Nordic State, Denmark is famous for several things: </p>
+
+<ol>
+<li>Income is distributed more or less equally among its citizens,</li>
+<li>The tax rate is high.</li>
+</ol>
+
+<p>I decided to check the actual data and see if it&#39;s true or not.</p>
+
+<p>Danish statistical bank has a dataset that fits it perfectly: average disposable and gross household income by municipality between 2000 and 2011. <a href="http://statistikbanken.dk/statbank5a/default.asp?w=1366">http://statistikbanken.dk/statbank5a/default.asp?w=1366</a> .</p>
+
+<p>Let&#39;s see at household disposable income first. </p>
+
+		<div id="disposable-income">
+			<h3>Average net household income</h3>
+			<div id="year-net" class="year-label">2011</div>
+			<div id="slider-net"></div>
+			<script>
+			make_a_chart("div#disposable-income", "raw_logs/disposable_household_income.csv", [160000, 553000],9,"y-2011","PuRd",d3.format(",", Math.ceil),"Disposable household income, 2011");
+			$(function() {
+				$( "#slider-net" ).slider({
+					orientation: "horizontal",
+					min: 2000,
+					max: 2011,
+					value: 2011,
+					slide: function( event, ui ) {
+						$("#year-net").empty();
+						$("#year-net").text(ui.value);
+						$("#disposable-income svg").remove();
+						make_a_chart("div#disposable-income", "raw_logs/disposable_household_income.csv", [160000, 553000],9,"y-" + ui.value,"PuRd",d3.format(",", Math.ceil),"Disposable household income, " + ui.value);
+					}
+				});
+			});
+			</script>
+		</div>
+		<p>All of the municipalities in Denmark got richer during these 12 years by 40-55%. There was a slight dip on national level in 2008, less than 1%. Otherwise the growth was more or less steady among municipalities.</p>
+
+<p>A bit unexpected for me was to realize that all the Danish regions in the upper part of income scale are located to the north of Copenhagen. Moreover, in families big Danish cities like Copenhagen, Aarhus and Odense earn less money than families in rural parts of Denmark. This distribution is constant throughtout all the available years.</p>
+
+<p>Then I downloaded gross household income by region between 2000 &mdash;2011, and looked at a tax level of Danish households. Results are surprizing.</p>
+		<div id="taxation">
+			<h3>Taxation level in danish municipalities</h3>
+			<div id="year-tax" class="year-label">2011</div>
+			<div id="slider-taxation"></div>
+			<script>
+			make_a_chart("div#taxation", "raw_logs/taxes.csv", [0.27, 0.45],9,"tax-2011","YlOrBr",d3.format(".2%"),"Taxation level in 2011 ");
+			$(function() {
+				$( "#slider-taxation" ).slider({
+					orientation: "horizontal",
+					min: 2000,
+					max: 2011,
+					value: 2011,
+					slide: function( event, ui ) {
+						$("#year-tax").empty();
+						$("#year-tax").text(ui.value);
+						$("#taxation svg").remove();
+						make_a_chart("div#taxation", "raw_logs/taxes.csv",[0.27, 0.45],9,"tax-" + ui.value,"YlOrBr",d3.format(".2%"),"Taxation level in " + ui.value);
+					}
+				});
+			});
+			</script>
+		</div>
+ <p>First there was a significant drop in level of taxation in during this period. In the beginning a Danish household paid around 37-38% of its income as taxes, and in 2011 the same figure was a bit more than 30% - 10 percentage points less than 10 years ago. Geographical pattern also interesting. Richer regions around Copenhagen tend to be taxed more, which is not surprising. What is surprizing is that the poor rural regions in Western part of Denmark tend to have even higher tax rate than rich municipalities in capital region.</p>
+
+	</div>
+</body>

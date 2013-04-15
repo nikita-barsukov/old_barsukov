@@ -100,7 +100,7 @@ caption {
 
       queue()
           .defer(d3.json, "dk.json")
-          .defer(d3.csv, "foreigners-by-kommune.csv", function(d) { rateById.set(d.muni, + d[plot_variable]); })
+          .defer(d3.csv, "raw_logs/foreigners-by-kommune.csv", function(d) { rateById.set(d.muni, + d[plot_variable]); })
           .await(ready);
 
       function ready(error, dk) {
