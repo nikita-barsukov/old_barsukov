@@ -121,7 +121,7 @@ caption {
                 .attr("height", 20)
                 .attr("y", function(d, i){ return 45 + i*21;})
                 .attr("x", 10)
-                .attr("fill", function(d){return colorScale(legend_breaks[d]+0.01)})
+                .attr("fill", function(d,i){return colorbrewer[color_palette][buckets][i]})
                 .attr("class","legend-block");
 
         legend.selectAll("text")
@@ -250,7 +250,7 @@ caption {
 </tr>
 </tbody></table>
 
-<p>Different communes have different share of foreigners. Percentage varies from 17% in Ishøj, a suburb of Copenhagen, to less than 3% in a small municipality of Sorø, in south-east of Sjælland.</p>
+<p>Different communes have different share of foreigners. Percentage varies from 17% in Ishøj, a suburb of Copenhagen, to less than 3% in a small municipality of Sorø, located to the south-west from Copenhagen.</p>
 
   <div id="share">
     <h3>Share of foreign-born residents in Danish municipalities</h3>

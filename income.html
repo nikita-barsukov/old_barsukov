@@ -92,7 +92,7 @@ caption {
       var legend = svg.append("g")
           .attr("id", "legend-" + plot_variable);
 
-      var colorScale = d3.scale.quantize()
+      var colorScale = d3.scale.quantile()
           .domain(range)
           .range(colorbrewer[color_palette][buckets]);
 
