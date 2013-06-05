@@ -8,24 +8,18 @@ body {
   width: 960px;
 }
 
-.highlight {
-  fill: "green"!important;
-}
-
 
 </style>
 <h2>Japanese startups</h2>
 <div id="sunburst">
-
-
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-
 <script>
-
+// Used code from: 
+// -- http://bl.ocks.org/anonymous/4229227
+// -- http://bl.ocks.org/mbostock/4063423
 var width = 650,
     height = 700,
-    radius = Math.min(width, height) / 2,
-    color = d3.scale.category20c();
+    radius = Math.min(width, height) / 2;
 
 var tooltip = d3.select("body")
   .append("div")
@@ -58,47 +52,53 @@ d3.json("japan-startups.json", function(error, root) {
       .data(partition.nodes)
     .enter().append("a").attr("xlink:href",function(d) { if(d.url) return d.url})
       .append("path")
+      .attr("class", "node")
       .attr("d", arc)
-      .style("stroke", function(d) {
-        if (d.url) return "#000";
-        else {return "gray"}
-    })
+      .style("stroke", function(d) {return "#000";})
       .style("fill", function(d) {
         if (d.name == "sunburst") return "red"
-        else {return "white"}
-      })
-      .each(stash)
-      .on("mouseover", function(d){
-        if(d.depth) {
-          tooltip.style("visibility", "visible");
-          d3.select(d3.event.target).style("fill", "green");
+        else {
+          if(d.url) { return "#F7F2F4"}
+          else {return "white"}
         }
-        else {null}
-
-     })
-      .on("mousemove", function(d){
-         d.depth ? tooltip.style("top", (d3.event.pageY-10)+"px")
-        .style("left",(d3.event.pageX + 10)+"px")
-        .text(d.name) : null;
-
       })
-      .on("mouseout", function(d){
-       tooltip.style("visibility", "hidden");
-        if(d.depth) {
-          d3.select(d3.event.target).style("fill", "white");
-        }
-        else {null}
-     });
-  console.log(root)
+      .each(stash);
+  path.on("mouseover", function(d){
+          if(d.depth) {
+            tooltip.style("visibility", "visible");
+            d3.select(d3.event.target).style("fill", "gray");
+            path.filter(function(p) {
+                while (p = p.parent) {
+                    if (p === d) return true;
+                  }
+                }).style("fill", "gray");          }
+          else {null}
+       })
+        .on("mousemove", function(d){
+           d.depth ? tooltip.style("top", (d3.event.pageY-10)+"px")
+          .style("left",(d3.event.pageX + 10)+"px")
+          .text(d.name) : null;
+
+        })
+        .on("mouseout", function(d){
+          if(d.depth) {
+            tooltip.style("visibility", "hidden");
+            d3.select(d3.event.target).style("fill", function(z) z.url? "#F7F2F4" : "white");
+            path.filter(function(p) {
+                while (p = p.parent) {
+                    if (p === d) return true;
+                  }
+                }).style("fill", function(z) z.url? "#F7F2F4" : "white");
+           }
+          else {null}
+       });
 });
 
-// Stash the old values for transition.
 function stash(d) {
   d.x0 = d.x;
   d.dx0 = d.dx;
 }
 
-// Interpolate the arcs in data space.
 function arcTween(a) {
   var i = d3.interpolate({x: a.x0, dx: a.dx0}, a);
   return function(t) {
