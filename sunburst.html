@@ -15,7 +15,8 @@ body {
 <div id="sunburst">
 
 
-<script src="d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
 <script>
 
 var width = 650,
@@ -23,14 +24,14 @@ var width = 650,
     radius = Math.min(width, height) / 2,
     color = d3.scale.category20c();
 
-var tooltip = d3.select("div#sunburst")
+var tooltip = d3.select("body")
   .append("div")
   .style("position", "absolute")
   .style("z-index", "10")
+  .style("visibility", "hidden")
   .style("border-style", "solid")
   .style("border-color", "gray")
-  .style("background-color", "white")
-  .style("visibility", "hidden");
+  .style("background-color", "white");
 
 var svg = d3.select("div#sunburst").append("svg")
     .attr("width", width)
@@ -60,14 +61,11 @@ d3.json("japan-startups.json", function(error, root) {
       .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
       .each(stash)
       .on("mouseover", function(){return tooltip.style("visibility", "visible");})
-      .on("mousemove", function(d){
-        return tooltip.style("top", (d3.event.pageY-10)+"px")
-          .style("left",(d3.event.pageX-200)+"px")
-          .text(d.name);
+      .on("mousemove", function(d){return tooltip.style("top", (event.pageY-10)+"px")
+        .style("left",(event.pageX+10)+"px")
+        .text(d.name)
       })
       .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-
-  console.log(root)
 });
 
 // Stash the old values for transition.
