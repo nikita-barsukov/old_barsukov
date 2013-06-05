@@ -5,8 +5,11 @@
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin: auto;
-  position: relative;
   width: 960px;
+}
+
+.highlight {
+  fill: "green"!important;
 }
 
 
@@ -20,7 +23,7 @@ body {
 <script>
 
 var width = 650,
-    height = 650,
+    height = 700,
     radius = Math.min(width, height) / 2,
     color = d3.scale.category20c();
 
@@ -55,17 +58,37 @@ d3.json("japan-startups.json", function(error, root) {
       .data(partition.nodes)
     .enter().append("a").attr("xlink:href",function(d) { if(d.url) return d.url})
       .append("path")
-      .attr("display", function(d) { return d.depth ? null : "none"; }) // hide inner ring
       .attr("d", arc)
-      .style("stroke", function(d) {if (d.url) return "#000";})
-      .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
-      .each(stash)
-      .on("mouseover", function(){return tooltip.style("visibility", "visible");})
-      .on("mousemove", function(d){return tooltip.style("top", (d3.event.pageY-10)+"px")
-        .style("left",(d3.event.pageX - width)+"px")
-        .text(d.name)
+      .style("stroke", function(d) {
+        if (d.url) return "#000";
+        else {return "gray"}
+    })
+      .style("fill", function(d) {
+        if (d.name == "sunburst") return "red"
+        else {return "white"}
       })
-      .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+      .each(stash)
+      .on("mouseover", function(d){
+        if(d.depth) {
+          tooltip.style("visibility", "visible");
+          d3.select(d3.event.target).style("fill", "green");
+        }
+        else {null}
+
+     })
+      .on("mousemove", function(d){
+         d.depth ? tooltip.style("top", (d3.event.pageY-10)+"px")
+        .style("left",(d3.event.pageX + 10)+"px")
+        .text(d.name) : null;
+
+      })
+      .on("mouseout", function(d){
+       tooltip.style("visibility", "hidden");
+        if(d.depth) {
+          d3.select(d3.event.target).style("fill", "white");
+        }
+        else {null}
+     });
   console.log(root)
 });
 
