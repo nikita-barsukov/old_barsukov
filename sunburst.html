@@ -61,11 +61,12 @@ d3.json("japan-startups.json", function(error, root) {
       .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
       .each(stash)
       .on("mouseover", function(){return tooltip.style("visibility", "visible");})
-      .on("mousemove", function(d){return tooltip.style("top", (event.pageY-10)+"px")
-        .style("left",(event.pageX+10)+"px")
+      .on("mousemove", function(d){return tooltip.style("top", (d3.event.pageY-10)+"px")
+        .style("left",(d3.event.pageX - width)+"px")
         .text(d.name)
       })
       .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+  console.log(root)
 });
 
 // Stash the old values for transition.
