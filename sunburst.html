@@ -83,12 +83,12 @@ d3.json("japan-startups.json", function(error, root) {
         .on("mouseout", function(d){
           if(d.depth) {
             tooltip.style("visibility", "hidden");
-            d3.select(d3.event.target).style("fill", function(z) z.url? "#F7F2F4" : "white");
+            d3.select(d3.event.target).style("fill", function(z) {z.url ? "#F7F2F4" : "white"});
             path.filter(function(p) {
                 while (p = p.parent) {
                     if (p === d) return true;
                   }
-                }).style("fill", function(z) z.url? "#F7F2F4" : "white");
+                }).style("fill", function(z) {z.url ? "#F7F2F4" : "white")};
            }
           else {null}
        });
