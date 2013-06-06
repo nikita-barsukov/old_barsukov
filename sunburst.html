@@ -34,7 +34,7 @@ var svg = d3.select("div#sunburst").append("svg")
     .attr("width", width)
     .attr("height", height)
   .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + height * .52 + ")");
+    .attr("transform", "translate(" + width / 2 + "," + height * .4 + ")");
 
 var partition = d3.layout.partition()
     .sort(null)
@@ -56,7 +56,7 @@ d3.json("japan-startups.json", function(error, root) {
       .attr("d", arc)
       .style("stroke", function(d) {return "#000";})
       .style("fill", function(d) {
-        if (d.name == "sunburst") return "red"
+        if (d.name == "") return "red"
         else {
           if(d.url) { return "#F7F2F4"}
           else {return "white"}
