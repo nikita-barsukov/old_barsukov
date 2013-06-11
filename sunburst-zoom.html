@@ -29,16 +29,6 @@ var width = 960,
     padding = 5,
     duration = 1000;
 
-var tooltip = d3.select("body")
-  .append("div")
-  .style("position", "absolute")
-  .style("z-index", "10")
-  .style("visibility", "hidden")
-  .style("border-style", "solid")
-  .style("border-color", "gray")
-  .style("background-color", "white")
-  .text("tooltip");
-
 var div = d3.select("#sunburst");
 
 var vis = div.append("svg")
@@ -62,22 +52,43 @@ d3.json("japan-startups.json", function(json) {
   var path = vis.selectAll("path").data(nodes);
   path.enter().append("path")
       .attr("id", function(d, i) { return "path-" + i; })
+      .attr("class", function(d,i) {return "elem-" + i})
       .attr("d", arc)
       .attr("fill-rule", "evenodd")
       .style("fill", colour)
       .style("stroke", "#a1a1a1")
-      .on("click", click)
       .on("mouseover", function(d){
-        tooltip.style("visibility", "visible");
+        var klass = d3.select(d3.event.target).attr("class")
+        d3.selectAll("text." + klass).style("visibility", "visible");
+          if(d.depth) {
+            d3.select(d3.event.target).style("fill", "gray");
+            path.filter(function(p) {
+                while (p = p.parent) {
+                    if (p === d) return true;
+                  }
+                }).style("fill", "gray");          }
+          else {null}
        })
-      .on("mousemove", function(d){
-         tooltip.style("top", (d3.event.pageY-10)+"px")
-        .style("left",(d3.event.pageX + 10)+"px")
-        .text(d.name) ;
-      })
       .on("mouseout", function(d){
-          tooltip.style("visibility", "hidden");
-           });
+        var klass = d3.select(d3.event.target).attr("class")
+        d3.selectAll("text." + klass).style("visibility", "hidden");
+          if(d.depth) {
+            d3.select(d3.event.target).style("fill", function(z) {
+              if(z.url) {return "#F7F2F4"}  
+              else {return "white"} 
+            });
+            path.filter(function(p) {
+                while (p = p.parent) {
+                    if (p === d) return true;
+                  }
+                }).style("fill", function(z) {
+              if(z.url) {return "#F7F2F4"}  
+              else {return "white"} });
+           }
+          else {null}
+           })
+      .on("click", click);
+
 
   var text = vis.selectAll("text").data(nodes);
   var textEnter = text.enter().append("text")
@@ -86,23 +97,25 @@ d3.json("japan-startups.json", function(json) {
         return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
       })
       .attr("dy", ".2em")
+      .attr("class", function(d,i) {return "elem-" + i})
       .attr("transform", function(d) {
         var multiline = (d.name || "").split(" ").length > 1,
             angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
             rotate = angle + (multiline ? -.5 : 0);
         return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
       })
-      .on("click", click)
+      .style("visibility", "hidden")
+      .on("click", click);
 
 
   textEnter.append("tspan")
       .attr("x", 0)
-      .text(function(d) { return  good_for_label(d) ? "" : d.name.split(" ")[0]; });
-  textEnter.append("tspan")
-      .attr("x", 0)
-      .attr("dy", "1em")
-      .style("visibility", function(d){ return d.dx > 0.07 ? "visible" : "hidden"; })
-      .text(function(d) {return  good_for_label(d) ? "" : d.name.split(" ")[1] || ""; });
+      .text(function(d) { return  d.name.split(" ")[0]; })
+  // textEnter.append("tspan")
+  //     .attr("x", 0)
+  //     .attr("dy", "1em")
+  //     .style("visibility", function(d){ return d.dx > 0.07 ? "visible" : "hidden"; })
+  //     .text(function(d) {return   d.name.split(" ")[1] || ""; });
 
   function click(d) {
     path.transition()
@@ -110,10 +123,7 @@ d3.json("japan-startups.json", function(json) {
       .attrTween("d", arcTween(d));
 
     // Somewhat of a hack as we rely on arcTween updating the scales.
-    text.style("visibility", function(e) {
-          return isParentOf(d, e) ? null : d3.select(this).style("visibility");
-        })
-      .transition()
+    text.transition()
         .duration(duration)
         .attrTween("text-anchor", function(d) {
           return function() {
@@ -128,12 +138,7 @@ d3.json("japan-startups.json", function(json) {
             return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
           };
         })
-        .style("fill-opacity", function(e) { return isParentOf(d, e) ? 1 : 1e-6; })
-        .each("end", function(e) {
-          d3.select(this).append("tspan")
-          .attr("x", 0)
-          .text(function(d) { d.name});
-        });
+        .style("fill-opacity", function(e) { return isParentOf(d, e) ? 1 : 1e-6; });
 
   }
 });
@@ -170,10 +175,6 @@ function arcTween(d) {
 
 function maxY(d) {
   return d.children ? Math.max.apply(Math, d.children.map(maxY)) : d.y + d.dy;
-}
-
-function good_for_label(d) {
-  return ((!d.url & d.depth == 2) || d.depth == 5)
 }
 </script>
 
