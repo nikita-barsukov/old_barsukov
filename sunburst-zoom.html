@@ -35,7 +35,7 @@ var vis = div.append("svg")
     .attr("width", width + padding * 2)
     .attr("height", height + padding * 2)
   .append("g")
-    .attr("transform", "translate(" + radius * 0.7 + "," + radius* 0.65 + ")");
+    .attr("transform", "translate(" + 0.6 * radius + "," + 0.6 * radius + ")");
 
 var partition = d3.layout.partition()
     .sort(null)
@@ -118,6 +118,14 @@ d3.json("japan-startups.json", function(json) {
   //     .text(function(d) {return   d.name.split(" ")[1] || ""; });
 
   function click(d) {
+    var id = d3.select(d3.event.target).attr("id")
+    if (id != "path-0") {
+      move_vis_element(1);
+    }
+    else{
+      move_vis_element(0.6)
+    }
+
     path.transition()
       .duration(duration)
       .attrTween("d", arcTween(d));
@@ -176,7 +184,11 @@ function arcTween(d) {
 function maxY(d) {
   return d.children ? Math.max.apply(Math, d.children.map(maxY)) : d.y + d.dy;
 }
-</script>
 
-<p>Click sector to zoom, click central circle to zoom out.</p>
+function move_vis_element(mult) {
+      vis.transition()
+        .duration(duration)
+        .attr("transform", "translate(" + mult * radius + "," + mult * radius + ")");
+}
+</script>
 </div>
