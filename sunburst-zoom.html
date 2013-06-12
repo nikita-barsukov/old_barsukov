@@ -1,27 +1,23 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
-
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin: auto;
   width: 960px;
 }
-
-
 </style>
 <h2>Japanese startups</h2>
+<!-- COPY START -->
 <div id="sunburst">
-  <p>Click on an element to zoom. Click central circle to zoom out.</p>
+<p>Click an element to zoom. Click central circle to zoom out.</p>
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script>
 // Used code from: 
 // -- http://bl.ocks.org/anonymous/4229227
 // -- http://bl.ocks.org/mbostock/4063423
+// -- http://www.jasondavies.com/coffee-wheel/
 
-// Coffee Flavour Wheel by Jason Davies,
-// http://www.jasondavies.com/coffee-wheel/
-// License: http://www.jasondavies.com/coffee-wheel/LICENSE.txt
 var width = 960,
     height = width,
     radius = width / 2,
@@ -36,11 +32,11 @@ var vis = div.append("svg")
     .attr("width", width + padding * 2)
     .attr("height", height + padding * 2)
   .append("g")
-    .attr("transform", "translate(" + 0.6 * radius + "," + 0.6 * radius + ")");
+    .attr("transform", "translate(" + 0.65 * radius + "," + 0.65 * radius + ")");
 
 var partition = d3.layout.partition()
     .sort(null)
-    .value(function(d) { return 5.8 - d.depth; });
+    .value(function(d) { return 1; });
 
 var arc = d3.svg.arc()
     .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
@@ -56,100 +52,114 @@ d3.json("japan-startups.json", function(json) {
       .attr("class", function(d,i) {return "elem-" + i})
       .attr("d", arc)
       .attr("fill-rule", "evenodd")
-      .style("fill", colour)
+      .style("fill", color)
+      .style("cursor", function(d) {if(d.url) {return "pointer"}})
       .style("stroke", "#a1a1a1")
-      .on("mouseover", function(d){
-        var klass = d3.select(d3.event.target).attr("class")
-        d3.selectAll("text." + klass).style("visibility", "visible");
-          if(d.depth) {
-            d3.select(d3.event.target).style("fill", "gray");
-            path.filter(function(p) {
-                while (p = p.parent) {
-                    if (p === d) return true;
-                  }
-                }).style("fill", "gray");          }
-          else {null}
+      .on("mouseover", function(d, i){
+        d3.select("#text-" + i).style("visibility", "visible");
+        console.log(d)
+        if(d.depth) {
+          d3.select(d3.event.target).style("fill", "gray");
+          path.filter(function(p) {
+              while (p = p.parent) {
+                  if (p === d) return true;
+                }
+              }).style("fill", "gray");
+        }
+        else {null}
        })
-      .on("mouseout", function(d){
-        var klass = d3.select(d3.event.target).attr("class")
-        d3.selectAll("text." + klass).style("visibility", "hidden");
-          if(d.depth) {
-            d3.select(d3.event.target).style("fill", function(z) {
-              if(z.url) {return "#F7F2F4"}  
-              else {return "white"} 
-            });
-            path.filter(function(p) {
-                while (p = p.parent) {
-                    if (p === d) return true;
-                  }
-                }).style("fill", function(z) {
-              if(z.url) {return "#F7F2F4"}  
-              else {return "white"} });
-           }
-          else {null}
-           })
+      .on("mouseout", function(d, i){
+        d3.select("#text-" + i).style("visibility", "hidden")
+        if(d.depth) {
+          d3.select(d3.event.target).style("fill", color);
+          path.filter(function(p) {
+            while (p = p.parent) {
+              if (p === d) return true;
+            }
+          }).style("fill", color);}
+        else {null}
+      })
       .on("click", click);
-
 
   var text = vis.selectAll("text").data(nodes);
   var textEnter = text.enter().append("text")
       .style("fill-opacity", 1)
+      .text(function(d) {return d.name})
+      .style("visibility", "hidden")
+      .style("cursor", function(d) {if(d.url){return "pointer"}})
       .attr("text-anchor", function(d) {
         return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
       })
       .attr("dy", ".2em")
-      .attr("class", function(d,i) {return "elem-" + i})
+      .attr("id", function(d,i) {return "text-" + i})
       .attr("transform", function(d) {
         var multiline = (d.name || "").split(" ").length > 1,
             angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
             rotate = angle + (multiline ? -.5 : 0);
         return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
       })
-      .style("visibility", "hidden")
+      .on("mouseover", function(d, i){
+        d3.select(d3.event.target).style("visibility", "visible")
+        if(d.depth) {
+          d3.select("#path-" + i).style("fill", "gray");
+          path.filter(function(p) {
+              while (p = p.parent) {
+                  if (p === d) return true;
+                }
+              }).style("fill", "gray");
+        }
+        else {null}
+       })
+      .on("mouseout", function(d, i){
+        d3.select(d3.event.target).style("visibility", "hidden")
+        if(d.depth) {
+          d3.select("#path-" + i).style("fill", color);
+          path.filter(function(p) {
+            while (p = p.parent) {
+              if (p === d) return true;
+            }
+          }).style("fill", color);}
+        else {null}
+      })
       .on("click", click);
 
-
-  textEnter.append("tspan")
-      .attr("x", 0)
-      .text(function(d) { return  d.name.split(" ")[0]; })
-  // textEnter.append("tspan")
-  //     .attr("x", 0)
-  //     .attr("dy", "1em")
-  //     .style("visibility", function(d){ return d.dx > 0.07 ? "visible" : "hidden"; })
-  //     .text(function(d) {return   d.name.split(" ")[1] || ""; });
-
   function click(d) {
-    var id = d3.select(d3.event.target).attr("id")
-    if (id != "path-0") {
-      move_vis_element(1);
+    if(d.url){
+      window.open(d.url);
     }
-    else{
-      move_vis_element(0.6)
-    }
+    else {
+      var id = d3.select(d3.event.target).attr("id")
+      if (id != "path-0") {
+        move_vis_element(1);
+      }
+      else{
+        move_vis_element(0.65)
+      }
 
-    path.transition()
-      .duration(duration)
-      .attrTween("d", arcTween(d));
-
-    // Somewhat of a hack as we rely on arcTween updating the scales.
-    text.transition()
+      path.transition()
         .duration(duration)
-        .attrTween("text-anchor", function(d) {
-          return function() {
-            return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
-          };
-        })
-        .attrTween("transform", function(d) {
-          var multiline = (d.name || "").split(" ").length > 1;
-          return function() {
-            var angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
-                rotate = angle + (multiline ? -.5 : 0);
-            return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
-          };
-        })
-        .style("fill-opacity", function(e) { return isParentOf(d, e) ? 1 : 1e-6; });
+        .attrTween("d", arcTween(d));
 
-  }
+      // Somewhat of a hack as we rely on arcTween updating the scales.
+      text.transition()
+          .duration(duration)
+          .attrTween("text-anchor", function(d) {
+            return function() {
+              return x(d.x + d.dx / 2) > Math.PI ? "end" : "start";
+            };
+          })
+          .attrTween("transform", function(d) {
+            var multiline = (d.name || "").split(" ").length > 1;
+            return function() {
+              var angle = x(d.x + d.dx / 2) * 180 / Math.PI - 90,
+                  rotate = angle + (multiline ? -.5 : 0);
+              return "rotate(" + rotate + ")translate(" + (y(d.y) + padding) + ")rotate(" + (angle > 90 ? -180 : 0) + ")";
+            };
+          })
+          .style("fill-opacity", function(e) { return isParentOf(d, e) ? 1 : 1e-6; });
+    }
+    }
+
 });
 
 function isParentOf(p, c) {
@@ -162,7 +172,7 @@ function isParentOf(p, c) {
   return false;
 }
 
-function colour(d) {
+function color(d) {
   if (d.url) {
     return "#F7F2F4"
   }
@@ -193,3 +203,4 @@ function move_vis_element(mult) {
 }
 </script>
 </div>
+<!--COPY END -->
