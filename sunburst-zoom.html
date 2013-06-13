@@ -44,6 +44,7 @@ var arc = d3.svg.arc()
     .innerRadius(function(d) { return  Math.max(0, d.y ? y(d.y) : d.y); })
     .outerRadius(function(d) { return  Math.max(0, y(d.y + d.dy)); });
 
+//Replace japan-startups.json with a URL of uploaded json file
 d3.json("japan-startups.json", function(json) {
   var nodes = partition.nodes(json);
   var path = vis.selectAll("path").data(nodes);
@@ -57,26 +58,18 @@ d3.json("japan-startups.json", function(json) {
       .style("stroke", "#a1a1a1")
       .on("mouseover", function(d, i){
         d3.select("#text-" + i).style("visibility", "visible");
-        console.log(d)
-        if(d.depth) {
+        if(d.depth) {//do not highlight on hovering central circle
           d3.select(d3.event.target).style("fill", "gray");
-          path.filter(function(p) {
-              while (p = p.parent) {
-                  if (p === d) return true;
-                }
-              }).style("fill", "gray");
+          highlight_children(path, d, "gray");
         }
         else {null}
        })
       .on("mouseout", function(d, i){
         d3.select("#text-" + i).style("visibility", "hidden")
-        if(d.depth) {
+        if(d.depth) {//do not highlight on hovering central circle
           d3.select(d3.event.target).style("fill", color);
-          path.filter(function(p) {
-            while (p = p.parent) {
-              if (p === d) return true;
-            }
-          }).style("fill", color);}
+          highlight_children(path, d, color);
+        }
         else {null}
       })
       .on("click", click);
@@ -100,25 +93,18 @@ d3.json("japan-startups.json", function(json) {
       })
       .on("mouseover", function(d, i){
         d3.select(d3.event.target).style("visibility", "visible")
-        if(d.depth) {
+        if(d.depth) {//do not highlight on hovering central circle
           d3.select("#path-" + i).style("fill", "gray");
-          path.filter(function(p) {
-              while (p = p.parent) {
-                  if (p === d) return true;
-                }
-              }).style("fill", "gray");
+          highlight_children(path, d, "gray");
         }
         else {null}
        })
       .on("mouseout", function(d, i){
         d3.select(d3.event.target).style("visibility", "hidden")
-        if(d.depth) {
+        if(d.depth) { //do not highlight on hovering central circle
           d3.select("#path-" + i).style("fill", color);
-          path.filter(function(p) {
-            while (p = p.parent) {
-              if (p === d) return true;
-            }
-          }).style("fill", color);}
+          highlight_children(path, d, color);
+        }
         else {null}
       })
       .on("click", click);
@@ -200,6 +186,14 @@ function move_vis_element(mult) {
       vis.transition()
         .duration(duration)
         .attr("transform", "translate(" + mult * radius + "," + mult * radius + ")");
+}
+
+function highlight_children(path, d, color){
+  path.filter(function(p) {
+    while (p = p.parent) {
+      if (p === d) return true;
+    }
+  }).style("fill", color);
 }
 </script>
 </div>
