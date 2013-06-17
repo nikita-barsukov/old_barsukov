@@ -8,13 +8,9 @@
 <meta name="description" content="A blog by Nikita Barsukov. Analysing share of foreigners and total number of foreigners in Danish municipalities. Putting this data into an interactive infograpfic using D3.js" />
 <link href='http://fonts.googleapis.com/css?family=Quattrocento' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+<link href='css/main.css' rel='stylesheet' type='text/css'>
+<link href='css/font-awesome.min.css' rel='stylesheet' type='text/css'>
 <style>
-h1, h2, h3 {
-  font-family: 'Quattrocento', serif;
-}
-body {
-  font-family: 'Droid Sans', sans-serif;
-}
 table{
   border-collapse:collapse;
 }
@@ -27,13 +23,6 @@ caption {
 
 #main{
   width: 900px ;
-  margin-left: auto ;
-  margin-right: auto ;
-}
-
-.subtitle {
-  font-weight: bold;
-  font-style: italic;
 }
 
 .kommune {
@@ -197,8 +186,14 @@ caption {
 </head>
 <body>
   <div id='main'>
+    <div id="about_block">
+      <a href="/"><i class="icon-5x">Б</i></a><br/>
+      <a href="https://www.facebook.com/barsukov"><i class="icon-facebook icon-4x"></i></a><br/>
+      <a href="https://github.com/nikita-barsukov/"><i class="icon-github icon-4x"></i></a><br/>
+      <a href="mailto:nikita@barsukov.net"><i class="icon-4x">@</i></a><br/>
+
+    </div>
     <h1>Foreigners in Denmark</h1>
-    <p class='subtitle'>A visual exploration</p>
 <p>Danish <a href="http://www.statistikbanken.dk/statbank5a/default.asp?w=2560">bureau of statistics</a> has a nice dataset about foreign-born residents in Denmark. I took the latest dataset of foreign-born residents of Denmark by municipality. Dataset is from the first quarter of 2013.</p>
 <p>There are a bit less than 375 thousand foreign-born people living in Denmark, 6.7% of its total population. People from 192 countries live here, with no country having a clear majority. Most of foreigners in Denmark come from Turkey and Poland (around 27000 or .5% of total population), closely followed by Germans and Britons (.4% and .27% respectively). Almost half of all the foreigners in Denmark come from following 10 countries.</p>
 
