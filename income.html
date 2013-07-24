@@ -36,12 +36,12 @@ th {
 }
 
 </style>
-<script src="colorbrewer.js"></script>
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="http://d3js.org/queue.v1.min.js"></script>
-<script src="http://d3js.org/topojson.v0.min.js"></script>
-<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+<script src="js/colorbrewer.js"></script>
+<script src="js/jquery-1.9.1.min.js"></script>
+<script src="js/d3.v3.min.js"></script>
+<script src="js/queue.v1.min.js"></script>
+<script src="js/topojson.v0.min.js"></script>
+<script src="js/jquery-ui-1.10.2.js"></script>
 <script type="text/javascript">
     d3.selection.prototype.moveToFront = function() {
       return this.each(function(){
@@ -88,7 +88,7 @@ th {
           .range(colorbrewer[color_palette][buckets]);
 
       queue()
-          .defer(d3.json, "dk.json")
+          .defer(d3.json, "js/dk.json")
           .defer(d3.csv, data_file, function(d) { rateById.set(d.muni, + d[plot_variable]); })
           .await(ready);
 
