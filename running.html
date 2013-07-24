@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>My running statistics &mdash; A blog by Nikita Barsukov</title>
+<meta name="description" content="A blog by Nikita Barsukov. Analysing share of foreigners and total number of foreigners in Danish municipalities. Putting this data into an interactive infograpfic using D3.js" />
+<link href='http://fonts.googleapis.com/css?family=Quattrocento' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+<link href='css/main.css' rel='stylesheet' type='text/css'>
+<link href='css/font-awesome.min.css' rel='stylesheet' type='text/css'>
+<style>
+.regression {
+  stroke-width:1;
+  stroke:red;
+}
+
+.line {
+  fill: none;
+  stroke: green;
+  stroke-width: 0.2px;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.legend {
+  font-size: 13px;
+  font-family: Lucida, sans-serif;
+}
+
+#main{
+  width: 900px ;
+}
+
+</style>
+<script src="js/jquery-1.9.1.min.js"></script>
+<script src="js/d3.v3.min.js"></script>
+<!-- Linear regression formula is copied from here: https://gist.github.com/tmcw/2879363 -->
+<script type="text/javascript">
+  function linearregression() {
+    var linreg = {},
+    data = [];
+     
+    linreg.data = function(x) {
+      if (!arguments.length) return data;
+      data = x.slice();
+      data.sort(function(a, b) { return a[0] - b[0]; });
+      return linreg;
+    };
+     
+    linreg.path = function() {
+      var sum_x = 0, sum_y = 0,
+      sum_xx = 0, sum_xy = 0,
+      m, b;
+       
+      for (var i = 0; i < data.length; i++) {
+        sum_x += data[i][0];
+        sum_y += data[i][1];
+         
+        sum_xx += Math.pow(data[i][0], 2);
+        sum_xy += data[i][0] * data[i][1];
+      }
+     
+      m = (data.length * sum_xy - sum_x * sum_y) / (data.length * sum_xx - sum_x * sum_x);
+      b = (sum_y / data.length) - (m * sum_x) / data.length;
+      console.log(m);
+      console.log(b); 
+      return [
+        [data[0][0], data[0][0] * m + b],
+        [data[data.length - 1][0], data[data.length - 1][0] * m + b]
+      ];
+    };
+     
+    return linreg;
+  }
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-40379700-2', 'barsukov.net');
+  ga('send', 'pageview');
+
+</script>
+</head>
+<body>
+  <div id="main">
+    <div id="about_block">
+      <a href="/"><i class="icon-5x">Б</i></a><br/>
+      <a href="https://www.facebook.com/barsukov"><i class="icon-facebook icon-4x"></i></a><br/>
+      <a href="https://github.com/nikita-barsukov/"><i class="icon-github icon-4x"></i></a><br/>
+      <a href="mailto:nikita@barsukov.net"><i class="icon-4x">@</i></a><br/>
+
+    </div>
+    <h1>Running tracks</h1>
+    This is a visualization of 23 of my running routes in Endomondo GPS tracker. Data is parsed using <a href="https://gist.github.com/nikita-barsukov/77308edd90df4d00c332">Ruby</a> <a href="https://gist.github.com/nikita-barsukov/9a8d2537f643d97e45e8">and R</a> scripts. Parts of chart code is from <a href="http://bl.ocks.org/mbostock/3884955">examples gallery</a>. Linear regression code is copied from  a gist <a href="https://gist.github.com/tmcw/2879363">tmcw / index.html</a>.
+    <div id="chart">
+      <script type="text/javascript">
+        d3.csv("raw_logs/running.csv", function(data) {
+
+        var margin = {top: 20, right: 100, bottom: 50, left: 50},
+            width = 900 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+          var round = d3.format(".2f");
+
+          var svg = d3.select("#chart").append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                      .append("g")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          var x = d3.scale.linear()
+              .range([0, width])
+              .domain([d3.min(data, function(d) {return d.distance}),
+                       d3.max(data, function(d) {return d.distance})]);
+
+          var y = d3.scale.linear()
+              .range([height, 0])
+              .domain([d3.min(data, function(d) {return parseFloat(d.speed)}),
+                       d3.max(data, function(d) {return  parseFloat(d.speed)})]);
+
+          var reg = linearregression();
+          reg.data(data.map(function(d){return [parseFloat(d.distance), parseFloat(d.speed)]}));
+          coef = reg.path()
+
+          var xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom");
+
+          var yAxis = d3.svg.axis()
+              .scale(y)
+              .orient("left");
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis)
+            .append("text")
+              .attr("x", width/2-100)
+              .attr("y", "40")
+              .attr("dx", ".71em")
+              .text("Distance, km");
+
+          svg.append("g")
+              .attr("class", "y axis")
+              .call(yAxis)
+            .append("text")
+              .attr("transform", "rotate(-90)")
+              .attr("y", 6)
+              .attr("dy", ".71em")
+              .style("text-anchor", "end")
+              .text("Speed, km/h");
+
+          var workouts = d3.nest()
+            .key(function(d) {return d.endo_id})
+            .entries(data);
+
+          var line = d3.svg.line()
+            .interpolate("basis")
+            .x(function(d) { return x(d.distance); })
+            .y(function(d) { return y( parseFloat(d.speed)); });
+
+          var workout = svg.selectAll(".workout").data(workouts)
+            .enter().append("g")
+            .attr("class", "workout");
+
+          var tooltip = d3.select("svg")
+            .append("text")
+            .attr("class", "legend")
+            .attr("x", width - 200)
+            .attr("y", 20);
+
+          workout.append("path")
+            .attr("class", "line")
+            .attr("d", function(d) { return line(d.values); })
+            .attr("id", function(d) { return "endoid-" + d.key; })
+            .on("mouseover", function(d) {
+              d3.select("#endoid-" + d.key).style("stroke", "black").style("stroke-width", "1.5px");
+              tooltip.append("tspan")
+                .attr("x", width - 200)
+                .text("Distance: " + round(d3.max(d.values, function(e){return e.distance})) + " km");
+              tooltip.append("tspan")
+                .attr("dy", 15)
+                .attr("x", width - 200)
+                .text("Duration: " + round(d3.max(d.values, function(e){return e.duration / (1000 * 60)}))  + " minutes")
+            })
+            .on("mouseout", function(d) {
+              d3.select("#endoid-" + d.key).style("stroke", "green").style("stroke-width", "0.2px");
+              tooltip.text("")
+            });
+
+          svg.append('line')
+             .attr('class', 'regression')
+             .attr("x1", function() { return x(coef[0][0]) })
+             .attr("y1", function() { return y(coef[0][1]) })
+             .attr("x2", function() { return x(coef[1][0]) })
+             .attr("y2", function() { return y(coef[1][1]) })
+
+
+        })
+      </script>
+    </div>
+  </div>
+
+</body>
