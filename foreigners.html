@@ -38,11 +38,11 @@ caption {
 }
 
 </style>
-<script src="js/colorbrewer.js"></script>
-<script src="js/jquery-1.9.1.min.js"></script>
-<script src="js/d3.v3.min.js"></script>
-<script src="js/queue.v1.min.js"></script>
-<script src="js/topojson.v0.min.js"></script>
+<script src="lib/colorbrewer.js"></script>
+<script src="lib/jquery-1.9.1.min.js"></script>
+<script src="lib/d3.v3.min.js"></script>
+<script src="lib/queue.v1.min.js"></script>
+<script src="lib/topojson.v0.min.js"></script>
 <script type="text/javascript">
     d3.selection.prototype.moveToFront = function() {
       return this.each(function(){
@@ -91,7 +91,9 @@ caption {
 
       queue()
           .defer(d3.json, "js/dk.json")
-          .defer(d3.csv, "raw_logs/foreigners-by-kommune.csv", function(d) { rateById.set(d.muni, + d[plot_variable]); })
+          .defer(d3.csv, "raw_logs/foreigners-by-kommune.csv", function(d) { 
+            rateById.set(d.muni, + d[plot_variable]); 
+          })
           .await(ready);
 
       function ready(error, dk) {

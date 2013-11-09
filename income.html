@@ -11,37 +11,37 @@
 <link href='css/main.css' rel='stylesheet' type='text/css'>
 <link href='css/font-awesome.min.css' rel='stylesheet' type='text/css'>
 <style>
-table{
-  border-collapse:collapse;
-}
-th {
-  border-bottom: 1px solid black;
-}
+  table{
+    border-collapse:collapse;
+  }
+  th {
+    border-bottom: 1px solid black;
+  }
 
-#main{
-  width: 900px ;
+  #main{
+    width: 900px ;
 
-}
+  }
 
-.kommune {
-  stroke: grey;
-  stroke-linejoin: round;   
-}
-.active{
-  stroke:orange;
-}
+  .kommune {
+    stroke: grey;
+    stroke-linejoin: round;   
+  }
+  .active{
+    stroke:orange;
+  }
 
-.legend-block {
-  stroke: black;
-}
+  .legend-block {
+    stroke: black;
+  }
 
 </style>
-<script src="js/colorbrewer.js"></script>
-<script src="js/jquery-1.9.1.min.js"></script>
-<script src="js/d3.v3.min.js"></script>
-<script src="js/queue.v1.min.js"></script>
-<script src="js/topojson.v0.min.js"></script>
-<script src="js/jquery-ui-1.10.2.js"></script>
+<script src="lib/colorbrewer.js"></script>
+<script src="lib/jquery-1.9.1.min.js"></script>
+<script src="lib/d3.v3.min.js"></script>
+<script src="lib/queue.v1.min.js"></script>
+<script src="lib/topojson.v0.min.js"></script>
+<script src="lib/jquery-ui-1.10.2.js"></script>
 <script type="text/javascript">
     d3.selection.prototype.moveToFront = function() {
       return this.each(function(){
