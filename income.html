@@ -88,7 +88,7 @@
           .range(colorbrewer[color_palette][buckets]);
 
       queue()
-          .defer(d3.json, "js/dk.json")
+          .defer(d3.json, "lib/dk.json")
           .defer(d3.csv, data_file, function(d) { rateById.set(d.muni, + d[plot_variable]); })
           .await(ready);
 

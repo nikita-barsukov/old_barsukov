@@ -90,7 +90,7 @@ caption {
           .range(colorbrewer[color_palette][buckets]);
 
       queue()
-          .defer(d3.json, "js/dk.json")
+          .defer(d3.json, "lib/dk.json")
           .defer(d3.csv, "raw_logs/foreigners-by-kommune.csv", function(d) { 
             rateById.set(d.muni, + d[plot_variable]); 
           })
@@ -137,7 +137,6 @@ caption {
         var x, y, k;
         var komnavn = d.properties.KOMNAVN;
         z = svg.selectAll("." + komnavn);
-        console.log(svg);
         if (d && centered !== d) {
           var centroid = path.centroid(d);
           x = centroid[0];
