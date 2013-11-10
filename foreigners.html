@@ -57,7 +57,6 @@ caption {
     // buckets - number of buckets to break our plotting continuous variable
     function make_a_chart(locator, range, buckets,plot_variable,color_palette,legend_format,legend_text) {
       var centered; // used later for setting a centered element
-      var buckets = 8 // number of buckets that we divide communes by share of foreigners
       // calculating bucket breaks
       var legend_breaks = d3.scale.quantile()
           .domain(range)
