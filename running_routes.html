@@ -5,17 +5,16 @@
 <!-- http://gis.stackexchange.com/questions/29833/how-to-draw-a-polyline-in-leaflet -->
 
 <html>
-	<head>
-		<script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
-		<script src="lib/d3.v3.min.js" charset="utf-8"></script>
-
-		<script src="lib/jquery-1.9.1.min.js" charset="utf-8"></script>
-		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
-		<!--[if lte IE 8]>
-		    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
-		<![endif]-->
-		<style type="text/css">
-			#map { height: 700px; width: 700px; }
+    <head>
+        <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+        <script src="lib/d3.v3.min.js" charset="utf-8"></script>
+        <script src="lib/jquery-1.9.1.min.js" charset="utf-8"></script>
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
+        <!--[if lte IE 8]>
+            <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
+        <![endif]-->
+        <style type="text/css">
+            #map { height: 800px; width: 500px; }
             .legend {
                 background-color: white;
                 width: 75px;
@@ -26,81 +25,83 @@
                 display: inline-block;
                 margin-left: 5px;
             }
-            hr {
-                display: inline-block;
-                width: 25px;
-                text-align: left;
-                margin: 0 auto 0 0;
+            .highlighed path {
+                stroke: black;
+                stroke-width: 1px;
+                stroke-opacity: 1;
             }
-		</style>
-	</head>
+            .selected path {
+                stroke: black;
+                stroke-width: 2px;
+                stroke-opacity: 1;
+            }
+        </style>
+    </head>
 
-	<body>
-		<div id="map">
-		</div>
-		<script type="text/javascript">
-			var map = L.map("map").setView([55.635094,12.582929],14);
-			var workouts;
-			L.tileLayer('http://{s}.tiles.mapbox.com/v3/barsukov.map-o4izgnwb/{z}/{x}/{y}.png').addTo(map);
-			var style = {
-				color: "#B50E46",
-				weight: 1,
-				opacity: 0.3
-			};
-			var hovered_style = {
-			    color: '#000',
-			    opacity: 1,
-		        weight: 1				
-			};
-			var clicked_style = {
-			    color: '#000',
-			    opacity: 1,
-		        weight: 3					
-			}
-			var obj;
+    <body>
+        <div id="map">
+        </div>
+        <script type="text/javascript">
+            NodeList.prototype.forEach = HTMLCollection.prototype.forEach = Array.prototype.forEach; // forEach for HTML collections
 
-			d3.csv("raw_logs/workouts.csv", function(data){
-				function highlight(e) {
-					var layer = e.target;
-				    layer.setStyle(hovered_style);
-				    
-				    if (!L.Browser.ie && !L.Browser.opera) {
-				        layer.bringToFront();
-				    }
-				};
-				function reset_highlight(e) {
-					var layer = e.target;
-				    layer.setStyle(style);
+            var map = L.map("map").setView([55.635094,12.582929],13);
+            var workouts;
+            L.tileLayer('http://{s}.tiles.mapbox.com/v3/barsukov.map-o4izgnwb/{z}/{x}/{y}.png').addTo(map);
 
-				    if (!L.Browser.ie && !L.Browser.opera) {
-				        layer.bringToBack();
-				    }
-				};
-				function toggle_highlight(e) {
-					obj = e.target._container
-				} 
-				workouts = d3.nest()
-					.key(function(d) {return d.endo_id})
-					.entries(data);
+            var style = {
+                color: "#B50E46",
+                weight: 1,
+                opacity: 0.3
+            };
 
-				workouts.forEach (function(d){
-					var point_list = [];
-					d.values.forEach(function(e){
-						point_list.push(new L.LatLng(e.lat, e.lon));
-					});
-					var line = new L.Polyline(point_list, style)
-					map.addLayer(line);
-					line.on ({
-						mouseover: highlight,
-						mouseout: reset_highlight,
-						click: toggle_highlight
-					});
-				});
+            d3.csv("raw_logs/workouts.csv", function(data){
+                function highlight(e) {
+                    var layer = e.target;
+                    layer._container.classList.add("highlighed")
+                    
+                    if (!L.Browser.ie && !L.Browser.opera) {
+                        layer.bringToFront();
+                    }
+                };
+                function reset_highlight(e) {
+                    var layer = e.target;
+                    layer._container.classList.remove("highlighed")
 
-			});
+                    if (!L.Browser.ie && !L.Browser.opera && !layer._container.classList.contains("selected")) {
+                        layer.bringToBack();
+                    }
+                };
+                function toggle_highlight(e) {
+                    var cont = e.target._container;
+                    var layer = e.target;
+                    selected_elements = document.getElementsByClassName("selected");
+                    selected_elements.forEach(function(d){
+                        d.classList.remove("selected")
+                    })
 
+                    if (!L.Browser.ie && !L.Browser.opera && !cont.classList.contains("selected")) {
+                        layer.bringToFront();
+                    }
+                    cont.classList.toggle("selected");
+                } 
+                workouts = d3.nest()
+                    .key(function(d) {return d.endo_id})
+                    .entries(data);
 
-
-		</script>
-	</body>
+                workouts.forEach (function(d){
+                    var point_list = [];
+                    d.values.forEach(function(e){
+                        point_list.push(new L.LatLng(e.lat, e.lon));
+                    });
+                    var line = new L.Polyline(point_list, style)
+                    map.addLayer(line);
+                    line.on ({
+                        mouseover: highlight,
+                        mouseout: reset_highlight,
+                        click: toggle_highlight
+                    });
+                });
+            });
+        </script>
+    </body>
 </html>
