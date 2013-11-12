@@ -16,11 +16,8 @@
 .line {
   fill: none;
   stroke: green;
+  stroke-opacity: 0.7;
   stroke-width: 0.2px;
-}
-
-.x.axis path {
-  display: none;
 }
 
 .axis path,
@@ -70,8 +67,6 @@
      
       m = (data.length * sum_xy - sum_x * sum_y) / (data.length * sum_xx - sum_x * sum_x);
       b = (sum_y / data.length) - (m * sum_x) / data.length;
-      console.log(m);
-      console.log(b); 
       return [
         [data[0][0], data[0][0] * m + b],
         [data[data.length - 1][0], data[data.length - 1][0] * m + b]
@@ -105,7 +100,7 @@
     This is a visualization of 23 of my running routes in Endomondo GPS tracker. Data is parsed using <a href="https://gist.github.com/nikita-barsukov/77308edd90df4d00c332">Ruby</a> <a href="https://gist.github.com/nikita-barsukov/9a8d2537f643d97e45e8">and R</a> scripts. Parts of chart code is from <a href="http://bl.ocks.org/mbostock/3884955">examples gallery</a>. Linear regression code is copied from  a gist <a href="https://gist.github.com/tmcw/2879363">tmcw / index.html</a>.
     <div id="chart">
       <script type="text/javascript">
-        d3.csv("raw_logs/running.csv", function(data) {
+        d3.csv("raw_logs/workouts.csv", function(data) {
 
         var margin = {top: 20, right: 100, bottom: 50, left: 50},
             width = 900 - margin.left - margin.right,
@@ -118,16 +113,13 @@
                         .attr("height", height + margin.top + margin.bottom)
                       .append("g")
                         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
           var x = d3.scale.linear()
               .range([0, width])
-              .domain([d3.min(data, function(d) {return d.distance}),
-                       d3.max(data, function(d) {return d.distance})]);
+              .domain([0,d3.max(data, function(d) {return +d.distance})]);
 
           var y = d3.scale.linear()
               .range([height, 0])
-              .domain([d3.min(data, function(d) {return parseFloat(d.speed)}),
-                       d3.max(data, function(d) {return  parseFloat(d.speed)})]);
+              .domain([0, d3.max(data, function(d) {return  parseFloat(d.speed)})]);
 
           var reg = linearregression();
           reg.data(data.map(function(d){return [parseFloat(d.distance), parseFloat(d.speed)]}));

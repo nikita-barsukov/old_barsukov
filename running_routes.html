@@ -25,14 +25,14 @@
                 display: inline-block;
                 margin-left: 5px;
             }
-            .highlighed path {
+            .highlighted path {
                 stroke: black;
-                stroke-width: 1px;
+                stroke-width: 2px;
                 stroke-opacity: 1;
             }
             .selected path {
                 stroke: black;
-                stroke-width: 2px;
+                stroke-width: 4px;
                 stroke-opacity: 1;
             }
         </style>
@@ -42,7 +42,7 @@
         <div id="map">
         </div>
         <script type="text/javascript">
-            NodeList.prototype.forEach = HTMLCollection.prototype.forEach = Array.prototype.forEach; // forEach for HTML collections
+            NodeList.prototype.forEach = HTMLCollection.prototype.forEach = Array.prototype.forEach; // forEach for HTML collections, as in http://stackoverflow.com/q/13957354/218584
 
             var map = L.map("map").setView([55.635094,12.582929],13);
             var workouts;
@@ -50,14 +50,14 @@
 
             var style = {
                 color: "#B50E46",
-                weight: 1,
-                opacity: 0.3
+                weight: 2,
+                opacity: 0.2
             };
 
             d3.csv("raw_logs/workouts.csv", function(data){
                 function highlight(e) {
                     var layer = e.target;
-                    layer._container.classList.add("highlighed")
+                    layer._container.classList.add("highlighted")
                     
                     if (!L.Browser.ie && !L.Browser.opera) {
                         layer.bringToFront();
@@ -65,7 +65,7 @@
                 };
                 function reset_highlight(e) {
                     var layer = e.target;
-                    layer._container.classList.remove("highlighed")
+                    layer._container.classList.remove("highlighted")
 
                     if (!L.Browser.ie && !L.Browser.opera && !layer._container.classList.contains("selected")) {
                         layer.bringToBack();
@@ -73,16 +73,21 @@
                 };
                 function toggle_highlight(e) {
                     var cont = e.target._container;
-                    var layer = e.target;
-                    selected_elements = document.getElementsByClassName("selected");
+                    var layer =e.target;
+                    var is_selected = cont.classList.contains("selected")
+                    var selected_elements = document.getElementsByClassName("selected");
+                    var selected_length = selected_elements.length;
                     selected_elements.forEach(function(d){
                         d.classList.remove("selected")
                     })
-
+                    cont.classList.remove("highlighted")
                     if (!L.Browser.ie && !L.Browser.opera && !cont.classList.contains("selected")) {
                         layer.bringToFront();
                     }
-                    cont.classList.toggle("selected");
+                    if(selected_length == 0 | !is_selected) {
+                       cont.classList.add("selected"); 
+                    }
+                    
                 } 
                 workouts = d3.nest()
                     .key(function(d) {return d.endo_id})
