@@ -180,7 +180,7 @@
               d3.select("#endoid-" + d.key).style("stroke", "black").style("stroke-width", "1.5px");
               tooltip.append("tspan")
                 .attr("x", width - 200)
-                .text("Distance: " + round(d3.max(d.values, function(e){return e.distance})) + " km");
+                .text("Distance: " + round(d3.max(d.values, function(e){return +e.distance})) + " km");
               tooltip.append("tspan")
                 .attr("dy", 15)
                 .attr("x", width - 200)
