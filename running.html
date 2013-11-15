@@ -101,20 +101,51 @@
     <div id="chart">
       <script type="text/javascript">
         d3.csv("raw_logs/workouts.csv", function(data) {
+          
 
-        var margin = {top: 20, right: 100, bottom: 50, left: 50},
+        var margin = {top: 20, right: 100, bottom: 50, left: 30},
             width = 900 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
+          var total_chart_width = d3.max(data,function(d){return +d.distance}) * width / 10
+
           var round = d3.format(".2f");
 
-          var svg = d3.select("#chart").append("svg")
+          var drag = d3.behavior.drag()
+              .on("dragstart", function() {
+                m0 = d3.event.sourceEvent.pageX;
+                init_transform = d3.transform(svg.attr("transform")).translate[0]
+              })
+              .on("drag", function(d){
+                  new_transform = init_transform - m0 + d3.event.sourceEvent.pageX;
+                  if(new_transform < margin.left && new_transform > width + margin.right - total_chart_width) {
+                    svg.attr("transform", "translate(" + new_transform + "," + margin.top + ")");
+
+                  }
+          });         
+
+          var chart_container = d3.select("#chart").append("svg")
                         .attr("width", width + margin.left + margin.right)
-                        .attr("height", height + margin.top + margin.bottom)
-                      .append("g")
-                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                        .attr("height", height + margin.top + margin.bottom);
+          chart_container.call(drag)
+
+          var clip_element = chart_container.append("defs").append("clipPath")
+              .attr("id", "clip")
+              .append("rect")
+              .attr("id", "clip-rect")
+              .attr("x", margin.left)
+              .attr("y", 0)
+              .attr("width", width)
+              .attr("height", height + margin.top + margin.bottom);
+
+
+          var svg = chart_container.append("g")
+                    .attr("clip-path", "url(#clip)")
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
           var x = d3.scale.linear()
-              .range([0, width])
+              .range([0, total_chart_width])
               .domain([0,d3.max(data, function(d) {return +d.distance})]);
 
           var y = d3.scale.linear()
@@ -137,15 +168,16 @@
               .attr("class", "x axis")
               .attr("transform", "translate(0," + height + ")")
               .call(xAxis)
-            .append("text")
+          chart_container.append("text")
               .attr("x", width/2-100)
-              .attr("y", "40")
+              .attr("y", height + margin.top + margin.bottom)
               .attr("dx", ".71em")
               .text("Distance, km");
 
-          svg.append("g")
+          chart_container.append("g")
               .attr("class", "y axis")
               .call(yAxis)
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .append("text")
               .attr("transform", "rotate(-90)")
               .attr("y", 6)
@@ -159,7 +191,7 @@
 
           var line = d3.svg.line()
             .interpolate("basis")
-            .x(function(d) { return x(d.distance); })
+            .x(function(d) { return x(+d.distance); })
             .y(function(d) { return y( parseFloat(d.speed)); });
 
           var workout = svg.selectAll(".workout").data(workouts)
