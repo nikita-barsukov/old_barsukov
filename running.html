@@ -39,6 +39,7 @@
 </style>
 <script src="lib/jquery-1.9.1.min.js"></script>
 <script src="lib/d3.v3.min.js"></script>
+<script src="lib/jquery.timeago.js"></script>
 <!-- Linear regression formula is copied from here: https://gist.github.com/tmcw/2879363 -->
 <script type="text/javascript">
   function linearregression() {
@@ -97,15 +98,16 @@
 
     </div>
     <h1>Running tracks</h1>
-    This is a visualization of 23 of my running routes in Endomondo GPS tracker. Data is parsed using <a href="https://gist.github.com/nikita-barsukov/77308edd90df4d00c332">Ruby</a> <a href="https://gist.github.com/nikita-barsukov/9a8d2537f643d97e45e8">and R</a> scripts. Parts of chart code is from <a href="http://bl.ocks.org/mbostock/3884955">examples gallery</a>. Linear regression code is copied from  a gist <a href="https://gist.github.com/tmcw/2879363">tmcw / index.html</a>.
+    <p>This is a visualization of 23 of my running routes in Endomondo GPS tracker. Data is parsed using <a href="https://gist.github.com/nikita-barsukov/77308edd90df4d00c332">Ruby</a> <a href="https://gist.github.com/nikita-barsukov/9a8d2537f643d97e45e8">and R</a> scripts. Parts of chart code is from <a href="http://bl.ocks.org/mbostock/3884955">examples gallery</a>. Linear regression code is copied from  a gist <a href="https://gist.github.com/tmcw/2879363">tmcw / index.html</a>.</p>
+
+    <p>Chart area is draggable.</p>
     <div id="chart">
+      
       <script type="text/javascript">
         d3.csv("raw_logs/workouts.csv", function(data) {
-          
-
-        var margin = {top: 20, right: 100, bottom: 50, left: 30},
-            width = 900 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+          var margin = {top: 20, right: 100, bottom: 50, left: 30},
+              width = 900 - margin.left - margin.right,
+              height = 500 - margin.top - margin.bottom;
 
           var total_chart_width = d3.max(data,function(d){return +d.distance}) * width / 10
 
@@ -211,12 +213,14 @@
             .on("mouseover", function(d) {
               d3.select("#endoid-" + d.key).style("stroke", "black").style("stroke-width", "1.5px");
               tooltip.append("tspan")
-                .attr("x", width - 200)
+                .attr("x", width - 150)
                 .text("Distance: " + round(d3.max(d.values, function(e){return +e.distance})) + " km");
               tooltip.append("tspan")
                 .attr("dy", 15)
-                .attr("x", width - 200)
-                .text("Duration: " + round(d3.max(d.values, function(e){return e.duration / (1000 * 60)}))  + " minutes")
+                .attr("x", width - 150)
+                 .text("Duration: " + jQuery.timeago(Date.now() - d3.max(d.values, function(e){
+                    return e.duration / (1000 * 60) }
+                 ) * 1000 * 60).replace(" ago",""))
             })
             .on("mouseout", function(d) {
               d3.select("#endoid-" + d.key).style("stroke", "green").style("stroke-width", "0.2px");
