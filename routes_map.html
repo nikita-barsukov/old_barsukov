@@ -6,15 +6,23 @@
 
 <html>
     <head>
-        <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
-        <script src="lib/d3.v3.min.js" charset="utf-8"></script>
-        <script src="lib/jquery-1.9.1.min.js" charset="utf-8"></script>
+        <meta charset="utf-8">
+        <meta name="description" content="My running routes on a map. Used leaflet and D3" />
+        <meta name="keywords" content="spatial analysis, d3.js, leaflet.js, leaflet, d3, endomondo, runkeeper" />
+        <title>My running routes in Copenhagen &mdash; A blog by Nikita Barsukov</title>
+
+
+        <link href='css/main.css' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Quattrocento' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+        <link href='css/main.css' rel='stylesheet' type='text/css'>
+        <link href='css/font-awesome.min.css' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
         <!--[if lte IE 8]>
             <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
         <![endif]-->
         <style type="text/css">
-            #map { height: 800px; width: 500px; }
+            #map { height: 700px; width: 500px; }
             path.leaflet-clickable {
                 shape-rendering: crispEdges;
                 stroke-width: 2px;
@@ -40,10 +48,26 @@
                 stroke-opacity: 0.7
             }
         </style>
-    </head>
 
+        <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+        <script src="lib/d3.v3.min.js" charset="utf-8"></script>
+        <script src="lib/jquery-1.9.1.min.js" charset="utf-8"></script>
+    </head>
     <body>
-        <div id="map">
+        <div id="main">
+            <div id="about_block">
+              <a href="/"><i id="logo"class="icon-5x">Б</i></a><br/>
+              <a href="https://www.facebook.com/barsukov"><i class="icon-facebook icon-4x"></i></a><br/>
+              <a href="https://github.com/nikita-barsukov/"><i class="icon-github icon-4x"></i></a><br/>
+              <a href="mailto:nikita@barsukov.net"><i class="icon-4x">@</i></a><br/>
+            </div>
+            <h1>Map of my runs</h1>
+            <p>Since I run regularily and track most of my runs in Endomondo or Runkeeper, I thought it would be cool to put my running tracks on a map.</p>
+            <p>Map is generated using Leaflet.js, routes are generate with d3.js</p>
+            <p>Hover over a route to highlight, click to toggle highligt.</p>
+            <div id="map">
+            </div> 
+            <p><a href="/running.html"> Another chart</a> of my running workouts might be interesting as well. </p>           
         </div>
         <script type="text/javascript">
             NodeList.prototype.forEach = HTMLCollection.prototype.forEach = Array.prototype.forEach; // forEach for HTML collections, as in http://stackoverflow.com/q/13957354/218584
