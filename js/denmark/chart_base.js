@@ -1,4 +1,4 @@
-define(["helpers","backbone", "d3", "topojson"], function(helpers){
+define(["helpers","backbone", "d3", "topojson","jqueryui"], function(helpers){
     // requires to set an element on initializing
     var BaseChart = Backbone.View.extend({
         defaults: {
@@ -96,6 +96,9 @@ define(["helpers","backbone", "d3", "topojson"], function(helpers){
                 .attr("class", "legend")
                 .text(function (d){return chart.options.legend_format(d)} );
 
+        },
+        render_slider: function(fn){
+            this.$el.prepend("<div></div>").slider()
         }
     });
     return BaseChart;  

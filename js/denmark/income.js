@@ -6,7 +6,8 @@ requirejs.config({
         queue: "http://d3js.org/queue.v1.min",
         topojson: "../../lib/topojson",
         underscore: "../../lib/underscore",
-        colorbrewer: "../../lib/colorbrewer"
+        colorbrewer: "../../lib/colorbrewer",
+        jqueryui: "../../lib/jquery-ui-1.10.2"
     },
     shims: {
         "d3": {
@@ -35,6 +36,9 @@ require(["chart_base", "queue"], function(BaseChart, queue){
         .await(ready);
 
     function ready(error, dk_map, income_data) {
+        var f = function(a){
+            console.log(a)
+        }
         var db = _.map(income_data, function(e){
             return {kommune: e["muni"], income: e["y-2011"]}
         });
@@ -46,6 +50,7 @@ require(["chart_base", "queue"], function(BaseChart, queue){
         ch.render_map(dk_map);
 
         ch.render_cholopleth(db);
-        ch.render_legend();        
+        ch.render_legend()
+        ch.render_slider()       
     }
 })
