@@ -1,4 +1,4 @@
-define(["helpers","backbone", "d3", "topojson","jqueryui"], function(helpers){
+define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(helpers){
     // requires to set an element on initializing
     var BaseChart = Backbone.View.extend({
         defaults: {
@@ -6,8 +6,7 @@ define(["helpers","backbone", "d3", "topojson","jqueryui"], function(helpers){
             height: 650,
             buckets: 8,
             domain: [150000,550000],
-            legend_format: d3.format(",", Math.ceil),
-            enhance: true
+            legend_format: d3.format(",", Math.ceil)
         },
         initialize: function(options) {
             this.options = _.extend({}, this.defaults, options);
@@ -97,8 +96,21 @@ define(["helpers","backbone", "d3", "topojson","jqueryui"], function(helpers){
                 .text(function (d){return chart.options.legend_format(d)} );
 
         },
-        render_slider: function(fn){
-            this.$el.prepend("<div></div>").slider()
+        render_slider: function(dataset){
+            var chart = this;
+            chart.$el.prepend("<div></div>").slider({
+                    orientation: "horizontal",
+                    min: 2000,
+                    max: 2011,
+                    value: 2011,
+                    slide: function( event, ui ) {
+                        var data = _.map(dataset, function(e){
+                            return {kommune: e["muni"], income: e["y-" + ui.value]}
+                        });
+                        console.log(ui)
+                        chart.render_cholopleth(data)
+                    }
+                });
         }
     });
     return BaseChart;  
