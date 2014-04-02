@@ -30,6 +30,13 @@
   .legend {
     background-color: white;
   }
+  #tooltip: {
+    display: none;
+    position: absolute;
+  },
+  .active {
+    stroke: red!important;
+  }
 
 </style>
 <script data-main="js/denmark/income.js" src="lib/require.js"></script>
@@ -39,6 +46,7 @@
 
 </head>
 <body>
+  <div id="tooltip"></div>
 	<div id='main'>
     <div id="about_block">
       <a href="/"><i id = "logo" class="icon-5x">Б</i></a><br/>

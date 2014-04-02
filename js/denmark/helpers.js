@@ -1,4 +1,4 @@
-define(["d3", "colorbrewer"], function(){
+define(["d3","jquery", "colorbrewer"], function(){
   return {
     // Outputs scale function: numeric domain to colors in 
     // More info: http://colorbrewer2.org/ and http://bl.ocks.org/mbostock/5577023
@@ -11,6 +11,18 @@ define(["d3", "colorbrewer"], function(){
           .domain(domain)
           .range(colorbrewer[color_palette][buckets]);
       return colorScale
+    },
+    generate_tooltip_html: function(data_point) {
+      var tooltip_content = $("<table></table>");
+      for (var key in data_point) {
+        if (data_point.hasOwnProperty(key)) {
+          var row = $("<tr></tr>")
+          row.append("<td>" + key.charAt(0).toUpperCase() + key.slice(1) + ":</td>");
+          row.append("<td>" + data_point[key] + "</td>");
+          tooltip_content.append(row)
+        }
+      }
+      return tooltip_content;
     }
   }
     

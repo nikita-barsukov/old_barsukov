@@ -6,7 +6,8 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
             height: 650,
             buckets: 8,
             domain: [150000,550000],
-            legend_format: d3.format(",", Math.ceil)
+            legend_format: d3.format(",", Math.ceil),
+            tooltip: true,
         },
         initialize: function(options) {
             this.options = _.extend({}, this.defaults, options);
@@ -28,8 +29,7 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
                     .on("zoom", function() {
                           chart.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
                         });
-                this.svg.call(zoom)
-
+                this.svg.call(zoom);
             }
             return this;
         },
@@ -58,11 +58,24 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
         // dataset: array of datapoints
         render_cholopleth: function(dataset) {
             var chart = this;
+            var tooltip = $("#tooltip")
             var sc = helpers.color_scale_function(chart.options.domain, chart.options.palette, chart.options.buckets);
 
             dataset.forEach(function(d){
                 col = sc(d["income"]);
-                chart.chart.selectAll("." + d["kommune"]).transition().duration(750).attr("fill", col);
+                chart.chart.selectAll("." + d["kommune"]).transition().duration(1000).attr("fill", col);
+            });
+            chart.chart.selectAll("path").on("mouseover", function(d){
+                var komnavn = this.classList[0];
+                p = _.find(dataset, function(d){return d["kommune"] == komnavn});
+                tooltip.css("display", "visible");
+                tooltip.append(helpers.generate_tooltip_html(p));
+                tooltip.css("top", (d3.event.pageY)+"px")
+                  .css("left",(d3.event.pageX + 10)+"px")
+
+            }).on("mouseout", function(d){
+                tooltip.css("display", "none");
+                tooltip.empty()
             })
         },  
         render_legend: function(){
@@ -98,16 +111,18 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
         },
         render_slider: function(dataset){
             var chart = this;
-            chart.$el.prepend("<div></div>").slider({
+            chart.$el.prepend("<h3 class='year-label'>Average net household income in 2011</h3>");
+            chart.$el.prepend("<div class='slider'></div>");
+            chart.$el.find(".slider").slider({
                     orientation: "horizontal",
                     min: 2000,
                     max: 2011,
                     value: 2011,
                     slide: function( event, ui ) {
+                         chart.$el.find(".year-label").text("Average net household income in " + ui.value)
                         var data = _.map(dataset, function(e){
                             return {kommune: e["muni"], income: e["y-" + ui.value]}
                         });
-                        console.log(ui)
                         chart.render_cholopleth(data)
                     }
                 });
