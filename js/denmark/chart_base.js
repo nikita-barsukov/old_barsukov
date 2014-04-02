@@ -7,7 +7,6 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
             buckets: 8,
             domain: [150000,550000],
             legend_format: d3.format(",", Math.ceil),
-            tooltip: true,
         },
         initialize: function(options) {
             this.options = _.extend({}, this.defaults, options);
