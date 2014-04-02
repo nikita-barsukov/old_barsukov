@@ -64,18 +64,21 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
                 col = sc(d["income"]);
                 chart.chart.selectAll("." + d["kommune"]).transition().duration(1000).attr("fill", col);
             });
-            chart.chart.selectAll("path").on("mouseover", function(d){
-                var komnavn = this.classList[0];
-                p = _.find(dataset, function(d){return d["kommune"] == komnavn});
-                tooltip.css("display", "visible");
-                tooltip.append(helpers.generate_tooltip_html(p));
-                tooltip.css("top", (d3.event.pageY)+"px")
-                  .css("left",(d3.event.pageX + 10)+"px")
+            if(chart.options.tooltip) {
+                chart.chart.selectAll("path").on("mouseover", function(d){
+                    var komnavn = this.classList[0];
+                    p = _.find(dataset, function(d){return d["kommune"] == komnavn});
+                    tooltip.css("display", "visible");
+                    tooltip.append(helpers.generate_tooltip_html(p));
+                    tooltip.css("top", (d3.event.pageY)+"px")
+                      .css("left",(d3.event.pageX + 10)+"px")
 
-            }).on("mouseout", function(d){
-                tooltip.css("display", "none");
-                tooltip.empty()
-            })
+                }).on("mouseout", function(d){
+                    tooltip.css("display", "none");
+                    tooltip.empty()
+                })
+            }
+
         },  
         render_legend: function(){
             var chart = this;
