@@ -33,6 +33,12 @@ requirejs.config({
 });
 
 require(["chart_base", "queue"], function(BaseChart, queue){
+    d3.selection.prototype.moveToFront = function() {
+      return this.each(function(){
+        this.parentNode.appendChild(this);
+      });
+    };
+
     queue()
         .defer(d3.json, "lib/dk.json")
         .defer(d3.csv, "raw_logs/disposable_household_income.csv")
@@ -41,11 +47,13 @@ require(["chart_base", "queue"], function(BaseChart, queue){
     function ready(error, dk_map, income_data) {
         
         var db = _.map(income_data, function(e){
-            return {kommune: e["muni"], income: e["y-2011"]}
+            return {kommune: e["muni"], income: e["y-2000"]}
         });
         var ch = new BaseChart({
             el: "#disposable-income",
-            palette: "PuRd"
+            palette: "PuRd",
+            tooltip: true,
+            enhance: true
         });
         ch.render();
         ch.render_map(dk_map);

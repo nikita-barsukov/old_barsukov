@@ -7,6 +7,7 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
             buckets: 8,
             domain: [150000,550000],
             legend_format: d3.format(",", Math.ceil),
+            tooltip_format: d3.format(",", Math.ceil)
         },
         initialize: function(options) {
             this.options = _.extend({}, this.defaults, options);
@@ -56,6 +57,7 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
         },
         // dataset: array of datapoints
         render_cholopleth: function(dataset) {
+            console.log(this.options)
             var chart = this;
             var tooltip = $("#tooltip")
             var sc = helpers.color_scale_function(chart.options.domain, chart.options.palette, chart.options.buckets);
@@ -68,29 +70,48 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
                 chart.chart.selectAll("path").on("mouseover", function(d){
                     var komnavn = this.classList[0];
                     p = _.find(dataset, function(d){return d["kommune"] == komnavn});
-                    tooltip.css("display", "visible");
-                    tooltip.append(helpers.generate_tooltip_html(p));
+                    tooltip.css("display", "block");
+                    tooltip.append(helpers.generate_tooltip_html(p, chart.options.tooltip_format));
                     tooltip.css("top", (d3.event.pageY)+"px")
-                      .css("left",(d3.event.pageX + 10)+"px")
+                      .css("left",(d3.event.pageX + 10)+"px");
 
-                }).on("mouseout", function(d){
+                    d3.selectAll("." + komnavn).classed("highlighted", true);
+                    d3.selectAll("." + komnavn).moveToFront();
+
+                }).on("mousemove", function(d){
+                     tooltip.css("top", (d3.event.pageY)+"px")
+                      .css("left",(d3.event.pageX + 10)+"px")
+                })
+                .on("mouseout", function(d){
                     tooltip.css("display", "none");
-                    tooltip.empty()
+                    tooltip.empty();
+                    d3.selectAll(".highlighted").classed("highlighted", false);
                 })
             }
 
         },  
         render_legend: function(){
-            var chart = this;
 
+            var chart = this;
             var legend_breaks = helpers.color_scale_function(chart.options.domain, 
                 chart.options.palette, 
                 chart.options.buckets).quantiles(); 
 
             this.legend = chart.svg.append("g")
                 .attr("class", "legend");
-            this.legend.selectAll("rect")
-                .data(d3.range(this.options.buckets))
+
+            // adding background color to legend
+            this.legend.append("rect")
+                .attr("class", "legend-background")
+                .attr("x", 0)
+                .attr("y", 40)
+                .attr("rx", 10)
+                .attr("ry", 10)
+                .attr("width", 150)
+                .attr("height", 45 + 23 * (d3.range(chart.options.buckets).length - 1));
+
+            this.legend.selectAll(".legend-block")
+                .data(d3.range(chart.options.buckets))
                 .enter().append("rect")
                     .attr("width", 40)
                     .attr("height", 20)
@@ -113,13 +134,13 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
         },
         render_slider: function(dataset){
             var chart = this;
-            chart.$el.prepend("<h3 class='year-label'>Average net household income in 2011</h3>");
+            chart.$el.prepend("<h3 class='year-label'>Average net household income in 2000</h3>");
             chart.$el.prepend("<div class='slider'></div>");
             chart.$el.find(".slider").slider({
                     orientation: "horizontal",
                     min: 2000,
                     max: 2011,
-                    value: 2011,
+                    value: 2000,
                     slide: function( event, ui ) {
                          chart.$el.find(".year-label").text("Average net household income in " + ui.value)
                         var data = _.map(dataset, function(e){

@@ -6,8 +6,6 @@
 <link href='http://fonts.googleapis.com/css?family=Quattrocento' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
-<link href='http://fonts.googleapis.com/css?family=Quattrocento' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
 <link href='css/main.css' rel='stylesheet' type='text/css'>
 <link href='css/font-awesome.min.css' rel='stylesheet' type='text/css'>
 <style>
@@ -22,34 +20,37 @@
     stroke: grey;
     stroke-width: 1px;
     stroke-linejoin: round; 
-/**/  }
+  }
 
   .legend-block {
     stroke: black;
   }
-  .legend {
-    background-color: white;
+  .legend-background {
+    fill: rgba(255, 255, 255, 0.9);
   }
-  #tooltip: {
+
+  #tooltip {
     display: none;
     position: absolute;
-  },
-  .active {
-    stroke: red!important;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    border: 2px solid gray;
+  }
+
+  .highlighted {
+    stroke: black!important;
   }
 
 </style>
-<script data-main="js/denmark/income.js" src="lib/require.js"></script>
-<script type="text/javascript">
 
-</script>
+<script data-main="js/denmark/income.js" src="lib/require.js"></script>
 
 </head>
 <body>
   <div id="tooltip"></div>
 	<div id='main'>
     <div id="about_block">
-      <a href="/"><i id = "logo" class="icon-5x">Б</i></a><br/>
+      <a href="/"><i id="logo" class="icon-5x">Б</i></a><br/>
       <a href="https://www.facebook.com/barsukov"><i class="icon-facebook icon-4x"></i></a><br/>
       <a href="https://github.com/nikita-barsukov/"><i class="icon-github icon-4x"></i></a><br/>
       <a href="mailto:nikita@barsukov.net"><i class="icon-4x">@</i></a><br/>
@@ -57,9 +58,7 @@
 
     <h1>A new chart about danish income updated data!!</h1>
 
-    <div id="disposable-income">
-      
-    </div>
+    <div id="disposable-income"></div>
 
 	</div>
 </body>

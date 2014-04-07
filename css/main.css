@@ -43,3 +43,7 @@ body {
   margin: 5px;
   padding: 5px;
 }
+  #tooltip: {
+    display: none;
+    position: absolute;
+  }

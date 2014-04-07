@@ -12,13 +12,20 @@ define(["d3","jquery", "colorbrewer"], function(){
           .range(colorbrewer[color_palette][buckets]);
       return colorScale
     },
-    generate_tooltip_html: function(data_point) {
+    generate_tooltip_html: function(data_point, format_func) {
       var tooltip_content = $("<table></table>");
       for (var key in data_point) {
         if (data_point.hasOwnProperty(key)) {
           var row = $("<tr></tr>")
           row.append("<td>" + key.charAt(0).toUpperCase() + key.slice(1) + ":</td>");
-          row.append("<td>" + data_point[key] + "</td>");
+          var value = parseInt(data_point[key]);
+          if (isNaN(value)) {
+            value = data_point[key];
+          }
+          else {
+            value = format_func(data_point[key]);            
+          }
+          row.append("<td>" + value + "</td>");
           tooltip_content.append(row)
         }
       }
