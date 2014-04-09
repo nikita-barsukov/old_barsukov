@@ -6,8 +6,10 @@
 <link href='http://fonts.googleapis.com/css?family=Quattrocento' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
-<link href='css/main.css' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 <link href='css/font-awesome.min.css' rel='stylesheet' type='text/css'>
+
+
 <style>
   table{
     border-collapse:collapse;
@@ -40,6 +42,16 @@
   .highlighted {
     stroke: black!important;
   }
+  .slider{
+    float: left;
+    width: 80%;
+  }
+  .play-controls{
+    font-size: 16pt;
+  }
+  .slider{
+    margin: 10px 10px 0 0;
+  }
 
 </style>
 
@@ -47,18 +59,18 @@
 
 </head>
 <body>
-  <div id="tooltip"></div>
-	<div id='main'>
-    <div id="about_block">
+	<div class='container'>
+    <div id="about_block" class="col-md-1">
       <a href="/"><i id="logo" class="icon-5x">Б</i></a><br/>
       <a href="https://www.facebook.com/barsukov"><i class="icon-facebook icon-4x"></i></a><br/>
       <a href="https://github.com/nikita-barsukov/"><i class="icon-github icon-4x"></i></a><br/>
       <a href="mailto:nikita@barsukov.net"><i class="icon-4x">@</i></a><br/>
     </div>
+    <div id="post" class="col-md-11">
+      <h1>A new chart about danish income updated data!!</h1>
 
-    <h1>A new chart about danish income updated data!!</h1>
-
-    <div id="disposable-income"></div>
-
+      <div id="disposable-income"></div>
+    </div>
+        <div id="tooltip"></div>
 	</div>
 </body>

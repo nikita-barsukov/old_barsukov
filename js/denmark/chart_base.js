@@ -1,4 +1,4 @@
-define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(helpers){
+define(["helpers", "line_chart", "backbone", "d3", "topojson", "jquery", "jqueryui"], function(helpers, LineChart){
     // requires to set an element on initializing
     var BaseChart = Backbone.View.extend({
         defaults: {
@@ -9,6 +9,11 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
             legend_format: d3.format(",", Math.ceil),
             tooltip_format: d3.format(",", Math.ceil)
         },
+
+        // events: {
+        //     "click .controls": "playback"
+        // },
+
         initialize: function(options) {
             this.options = _.extend({}, this.defaults, options);
         },
@@ -56,8 +61,8 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
                   })
         },
         // dataset: array of datapoints
-        render_cholopleth: function(dataset) {
-            console.log(this.options)
+        render_cholopleth: function(dataset, kommune_data) {
+
             var chart = this;
             var tooltip = $("#tooltip")
             var sc = helpers.color_scale_function(chart.options.domain, chart.options.palette, chart.options.buckets);
@@ -86,12 +91,13 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
                     tooltip.css("display", "none");
                     tooltip.empty();
                     d3.selectAll(".highlighted").classed("highlighted", false);
-                })
+                });
+                // var spark = new LineChart({
+                //     el: "#tooltip"
+                // })
             }
-
         },  
         render_legend: function(){
-
             var chart = this;
             var legend_breaks = helpers.color_scale_function(chart.options.domain, 
                 chart.options.palette, 
@@ -134,21 +140,40 @@ define(["helpers","backbone", "d3", "topojson", "jquery", "jqueryui"], function(
         },
         render_slider: function(dataset){
             var chart = this;
+            chart.$el.prepend(
+                "<div class='slider-controls'><div class='slider'></div><div class='controls btn btn-default'><span class='glyphicon glyphicon-play'></span></div></div>");
             chart.$el.prepend("<h3 class='year-label'>Average net household income in 2000</h3>");
-            chart.$el.prepend("<div class='slider'></div>");
-            chart.$el.find(".slider").slider({
-                    orientation: "horizontal",
-                    min: 2000,
-                    max: 2011,
-                    value: 2000,
-                    slide: function( event, ui ) {
-                         chart.$el.find(".year-label").text("Average net household income in " + ui.value)
-                        var data = _.map(dataset, function(e){
-                            return {kommune: e["muni"], income: e["y-" + ui.value]}
-                        });
-                        chart.render_cholopleth(data)
-                    }
-                });
+            chart.sl = chart.$el.find(".slider").slider({
+                orientation: "horizontal",
+                min: 2000,
+                max: 2011,
+                value: 2000,
+                slide: function( event, ui ) {
+                    chart.$el.find(".year-label").text("Average net household income in " + ui.value)
+                    var data = _.map(dataset, function(e){
+                        return {kommune: e["muni"], income: e["y-" + ui.value]}
+                    });
+                    chart.render_cholopleth(data)
+                },
+                change: function( event, ui ) {
+                    chart.$el.find(".year-label").text("Average net household income in " + ui.value)
+                    var data = _.map(dataset, function(e){
+                        return {kommune: e["muni"], income: e["y-" + ui.value]}
+                    });
+                    chart.render_cholopleth(data)
+                }
+            });
+        },
+        playback: function(e) {
+            var chart = this;
+            var slide_show = function(j) {
+                setTimeout(function(){
+                    chart.sl.slider("value", j)
+                }, 1000); 
+            };
+            for(var i = 2000;i<2013;i++) {                
+               slide_show(i);
+            }            
         }
     });
     return BaseChart;  

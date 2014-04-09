@@ -53,7 +53,7 @@ require(["chart_base", "queue"], function(BaseChart, queue){
             el: "#disposable-income",
             palette: "PuRd",
             tooltip: true,
-            enhance: true
+            enhance: true,
         });
         ch.render();
         ch.render_map(dk_map);
