@@ -34,9 +34,9 @@
 <script src="lib/colorbrewer.js"></script>
 <script src="lib/jquery.js"></script>
 <script src="lib/d3.js"></script>
-<script src="lib/queue.js"></script>
+<script src="lib/queue.v1.min.js"></script>
 <script src="lib/topojson.js"></script>
-<script src="lib/jquery-ui-1.10.2.js"></script>
+<script src="lib/jquery-ui.js"></script>
 <script type="text/javascript">
     d3.selection.prototype.moveToFront = function() {
       return this.each(function(){
@@ -89,7 +89,7 @@
 
       function ready(error, dk) {
         svg.selectAll(".kommune")
-          .data(topojson.object(dk, dk.objects.kommuner2M).geometries)
+          .data(topojson.feature(dk, dk.objects.kommuner2M).features)
         .enter().append("path")
           .attr("class",function(d){ 
             return "kommune " + plot_variable + " " + d.properties.KOMNAVN})

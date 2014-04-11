@@ -41,7 +41,7 @@ caption {
 <script src="lib/colorbrewer.js"></script>
 <script src="lib/jquery.js"></script>
 <script src="lib/d3.js"></script>
-<script src="lib/queue.js"></script>
+<script src="lib/queue.v1.min.js"></script>
 <script src="lib/topojson.js"></script>
 <script type="text/javascript">
     d3.selection.prototype.moveToFront = function() {
@@ -96,7 +96,7 @@ caption {
 
       function ready(error, dk) {
         svg.selectAll(".kommune")
-          .data(topojson.object(dk, dk.objects.kommuner2M).geometries)
+          .data(topojson.feature(dk, dk.objects.kommuner2M).features)
         .enter().append("path")
           .attr("class",function(d){ 
             return "kommune " + plot_variable + " " + d.properties.KOMNAVN})
@@ -120,7 +120,7 @@ caption {
             .enter().append("text")
                 .attr("text-anchor", "start") // text-align
                 .attr("x", 50)
-                .attr("y", function(d, i){return 35 + i*21})
+                .attr("y", function(d, i){return 55 + i*21})
                 .attr("dx", 8) // padding-right
                 .attr("dy", 12 + 4) // vertical-align: used font size (copied from css. must be a better way)
                 .attr("class", "legend")
