@@ -7,7 +7,8 @@ define(["helpers", "line_chart", "backbone", "d3", "topojson", "jquery", "jquery
             buckets: 8,
             domain: [150000,550000],
             legend_format: d3.format(",", Math.ceil),
-            tooltip_format: d3.format(",", Math.ceil)
+            tooltip_format: d3.format(",", Math.ceil),
+            x_var: "muni"
         },
 
         // events: {
@@ -61,19 +62,40 @@ define(["helpers", "line_chart", "backbone", "d3", "topojson", "jquery", "jquery
                   })
         },
         // dataset: array of datapoints
-        render_cholopleth: function(dataset, kommune_data) {
-
+        render_cholopleth: function(data, y_var) {
             var chart = this;
             var tooltip = $("#tooltip")
             var sc = helpers.color_scale_function(chart.options.domain, chart.options.palette, chart.options.buckets);
+
+            var dataset = _.map(data, function(e){
+                return {kommune: e[chart.options.x_var], income: e[y_var]}
+            });
 
             dataset.forEach(function(d){
                 col = sc(d["income"]);
                 chart.chart.selectAll("." + d["kommune"]).transition().duration(1000).attr("fill", col);
             });
+
             if(chart.options.tooltip) {
                 chart.chart.selectAll("path").on("mouseover", function(d){
                     var komnavn = this.classList[0];
+                    var raw_komdata = _.findWhere(data, {muni: komnavn});
+                    var base_data = _.findWhere(data, {muni: "Danmark"});
+                    var komdata = []                    
+
+                    for (var key in raw_komdata) {
+                        if (raw_komdata.hasOwnProperty(key) && key !== chart.options.x_var) {
+                            
+                            var elem = {};
+
+                            elem["x"] = key.substring(2) 
+                            elem["y"] = raw_komdata[key]
+                            elem["base"] = base_data[key]
+
+                            komdata.push(elem)
+                        }
+                    }
+
                     p = _.find(dataset, function(d){return d["kommune"] == komnavn});
                     tooltip.css("display", "block");
                     tooltip.append(helpers.generate_tooltip_html(p, chart.options.tooltip_format));
@@ -82,6 +104,11 @@ define(["helpers", "line_chart", "backbone", "d3", "topojson", "jquery", "jquery
 
                     d3.selectAll("." + komnavn).classed("highlighted", true);
                     d3.selectAll("." + komnavn).moveToFront();
+                    
+                    var spark = new LineChart({
+                        el: "#tooltip"
+                    });
+                    spark.render(komdata);
 
                 }).on("mousemove", function(d){
                      tooltip.css("top", (d3.event.pageY)+"px")
@@ -91,17 +118,14 @@ define(["helpers", "line_chart", "backbone", "d3", "topojson", "jquery", "jquery
                     tooltip.css("display", "none");
                     tooltip.empty();
                     d3.selectAll(".highlighted").classed("highlighted", false);
-                });
-                // var spark = new LineChart({
-                //     el: "#tooltip"
-                // })
+                });                
             }
         },  
         render_legend: function(){
             var chart = this;
             var legend_breaks = helpers.color_scale_function(chart.options.domain, 
-                chart.options.palette, 
-                chart.options.buckets).quantiles(); 
+                                                                chart.options.palette, 
+                                                                chart.options.buckets).quantiles(); 
 
             this.legend = chart.svg.append("g")
                 .attr("class", "legend");
@@ -113,8 +137,8 @@ define(["helpers", "line_chart", "backbone", "d3", "topojson", "jquery", "jquery
                 .attr("y", 40)
                 .attr("rx", 10)
                 .attr("ry", 10)
-                .attr("width", 150)
-                .attr("height", 45 + 23 * (d3.range(chart.options.buckets).length - 1));
+                .attr("width", 120)
+                .attr("height", 45 + 22 * (d3.range(chart.options.buckets).length - 1));
 
             this.legend.selectAll(".legend-block")
                 .data(d3.range(chart.options.buckets))
@@ -146,21 +170,15 @@ define(["helpers", "line_chart", "backbone", "d3", "topojson", "jquery", "jquery
             chart.sl = chart.$el.find(".slider").slider({
                 orientation: "horizontal",
                 min: 2000,
-                max: 2011,
+                max: 2012,
                 value: 2000,
                 slide: function( event, ui ) {
-                    chart.$el.find(".year-label").text("Average net household income in " + ui.value)
-                    var data = _.map(dataset, function(e){
-                        return {kommune: e["muni"], income: e["y-" + ui.value]}
-                    });
-                    chart.render_cholopleth(data)
+                    chart.$el.find(".year-label").text("Average net household income in " + ui.value)                    
+                    chart.render_cholopleth(dataset, "y-" + ui.value)
                 },
                 change: function( event, ui ) {
                     chart.$el.find(".year-label").text("Average net household income in " + ui.value)
-                    var data = _.map(dataset, function(e){
-                        return {kommune: e["muni"], income: e["y-" + ui.value]}
-                    });
-                    chart.render_cholopleth(data)
+                    chart.render_cholopleth(dataset, "y-" + ui.value)
                 }
             });
         },

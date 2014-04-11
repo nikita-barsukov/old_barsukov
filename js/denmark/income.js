@@ -45,10 +45,7 @@ require(["chart_base", "queue"], function(BaseChart, queue){
         .await(ready);
 
     function ready(error, dk_map, income_data) {
-        
-        var db = _.map(income_data, function(e){
-            return {kommune: e["muni"], income: e["y-2000"]}
-        });
+
         var ch = new BaseChart({
             el: "#disposable-income",
             palette: "PuRd",
@@ -58,7 +55,7 @@ require(["chart_base", "queue"], function(BaseChart, queue){
         ch.render();
         ch.render_map(dk_map);
 
-        ch.render_cholopleth(db);
+        ch.render_cholopleth(income_data, "y-2000");
         ch.render_legend()
         ch.render_slider(income_data)       
     }
