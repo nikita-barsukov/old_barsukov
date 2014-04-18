@@ -11,9 +11,9 @@ define(["helpers", "line_chart", "backbone", "d3", "topojson", "jquery", "jquery
             x_var: "muni"
         },
 
-        // events: {
-        //     "click .controls": "playback"
-        // },
+        events: {
+            "click .controls": "playback"
+        },
 
         initialize: function(options) {
             this.options = _.extend({}, this.defaults, options);
@@ -185,14 +185,18 @@ define(["helpers", "line_chart", "backbone", "d3", "topojson", "jquery", "jquery
         },
         playback: function(e) {
             var chart = this;
-            var slide_show = function(j) {
-                setTimeout(function(){
-                    chart.sl.slider("value", j)
-                }, 1000); 
-            };
-            for(var i = 2000;i<2013;i++) {                
-               slide_show(i);
-            }            
+
+            var year = 2000;
+            chart.sl.slider("value", year);
+            var i = setInterval(function(){
+                chart.sl.slider("value", year)
+
+                year++;
+                if(year === 2013) {
+                    clearInterval(i);
+                }
+            }, 1000);
+                   
         }
     });
     return BaseChart;  

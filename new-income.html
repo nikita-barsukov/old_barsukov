@@ -45,6 +45,7 @@
   .highlighted {
     stroke: black!important;
   }
+
   .slider{
     float: left;
     width: 80%;
@@ -70,7 +71,7 @@
     display: none;
   }
 
-  svg text {
+  #tooltip text {
     font-size: 8px;
   }
 
@@ -88,10 +89,21 @@
       <a href="mailto:nikita@barsukov.net"><i class="icon-4x">@</i></a><br/>
     </div>
     <div id="post" class="col-md-11">
-      <h1>A new chart about danish income updated data!!</h1>
-
+      <h1>Average net household income in Danish municipalities in 2000 - 2012</h1>
+      <p>All numbers are in current Danish kroner. Red line in tooltip is nation average.</p>
+      <p>You can drag and zoom map.</p>
       <div id="disposable-income"></div>
+
+      <p>A while ago I posted a map of average yearly income in Danish municipalities. I put a lot of effort to create that map, but after some time I realized that not just my code was a big mess, but visualisation itself can be improved a great deal. So I sat down, took a new dataset from Danish statistics site, and rewrote the whole visualization.</p>
+
+      <p>This viz reflects following key points:
+
+      <ul>
+        <li>Danish wealthy leave almost exclusively in the area to the north of Copenhagen. Wealth in other parts of Denmark is distributed remarkably evenly;</li>
+        <li>No areas in Denmark with average income significantly less than nation average;</li>
+        <li>There was a decline in national income in 2008, especially in the rich areas;</li>
+      </ul></p>
     </div>
-        <div id="tooltip"></div>
+    <div id="tooltip"></div>
 	</div>
 </body>

@@ -6,7 +6,7 @@ define(["d3", "jquery", "backbone"], function(){
             buckets: 8,
             y_domain: [150000,550000],
             x_domain: [2000, 2012],
-            margin: {top: 5, right: 5, bottom: 10, left: 40}
+            margin: {top: 0, right: 15, bottom: 10, left: 40}
         },
 
         initialize: function(options) {
@@ -53,7 +53,7 @@ define(["d3", "jquery", "backbone"], function(){
               .attr("transform", "translate(" + this.options.margin.left + "," + this.options.margin.top + ")")
 
             this.chart_container = this.svg.append("g")
-                    .attr("transform", "translate(" + this.options.margin.left + "," + this.options.margin.top + ")");
+                    .attr("transform", "translate(" + (this.options.margin.left + 5) + "," + this.options.margin.top + ")");
 
             this.chart_container
                 .append("path")
@@ -76,10 +76,11 @@ define(["d3", "jquery", "backbone"], function(){
                     .attr("x2", x_scale(year))
                     .attr("y2", chart.options.height)
                     .attr("class", "year-line");
+
             chart.chart_container.append("text")
                 .text(year)
                 .attr("x", x_scale(year) - 10)
-                .attr("y", chart.options.height+ 5)
+                .attr("y", chart.options.height + 10);
         }  
     });
 
