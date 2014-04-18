@@ -78,7 +78,15 @@
 </style>
 
 <script data-main="js/denmark/income.js" src="lib/require.js"></script>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+    ga('create', 'UA-43677904-2', 'barsukov.net');
+    ga('send', 'pageview');
+  </script>
 </head>
 <body>
 	<div class='container'>
@@ -91,10 +99,11 @@
     <div id="post" class="col-md-11">
       <h1>Average net household income in Danish municipalities in 2000 - 2012</h1>
       <p>All numbers are in current Danish kroner. Red line in tooltip is nation average.</p>
+      <p>Play button starts animation.</p>
       <p>You can drag and zoom map.</p>
       <div id="disposable-income"></div>
 
-      <p>A while ago I posted a map of average yearly income in Danish municipalities. I put a lot of effort to create that map, but after some time I realized that not just my code was a big mess, but visualisation itself can be improved a great deal. So I sat down, took a new dataset from Danish statistics site, and rewrote the whole visualization.</p>
+      <p>A while ago I posted <a href="/income"> a map</a> of average yearly income in Danish municipalities. I put a lot of effort to create that map, but after some time I realized that not just my code was a big mess, but visualisation itself can be improved a great deal. So I sat down, took a new dataset from Danish statistics site, and rewrote the whole visualization.</p>
 
       <p>This viz reflects following key points:
 
