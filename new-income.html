@@ -23,6 +23,9 @@
     stroke-width: 1px;
     stroke-linejoin: round; 
   }
+  .year-line{
+    stroke: gray;
+  }
 
   .legend-block {
     stroke: black;
@@ -56,6 +59,19 @@
   }
   .base-line{
     stroke: red;
+  }
+    
+  .axis line {
+    fill: none;
+    stroke: gray;
+    shape-rendering: crispEdges;
+  }
+  .y.axis path {
+    display: none;
+  }
+
+  svg text {
+    font-size: 8px;
   }
 
 </style>

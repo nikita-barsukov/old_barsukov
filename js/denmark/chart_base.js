@@ -109,6 +109,7 @@ define(["helpers", "line_chart", "backbone", "d3", "topojson", "jquery", "jquery
                         el: "#tooltip"
                     });
                     spark.render(komdata);
+                    spark.render_year_line(chart.sl.slider("option", "value"))
 
                 }).on("mousemove", function(d){
                      tooltip.css("top", (d3.event.pageY)+"px")
